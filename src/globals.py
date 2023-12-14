@@ -1,3 +1,5 @@
-training_data = []
+training_sentences = []
+test_sentences = []
 tokenized_words = []
 tokenized_chars = []
+golden_outputs = []
