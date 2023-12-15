@@ -12,6 +12,7 @@ def extract_golden_output():
 
 
 
+# This Function converts the sentence into tokens and creates the vocabulary of words
 def word_tokenize():
     #Bert Tokenizer to generate word_vocabulary data already read in cleaned_sentences
     tokenizer = BertTokenizer.from_pretrained('asafaya/bert-base-arabic')
@@ -21,13 +22,15 @@ def word_tokenize():
         globals.tokenized_sentences.append(sentence_tokens) #List of Sentences of List of Word Tokens
         globals.word_vocabulary.update(sentence_tokens) #Set of vocabulary of word tokens
     
-    print("Tokenized Sentences", globals.tokenized_sentences)
+    print("Tokenized Sentences", globals.tokenized_sentences[0])
     with open('dataset/vocab.txt', 'w',encoding='utf-8') as vocab_file:
         for vocab_word in globals.word_vocabulary:
             vocab_file.write(vocab_word + '\n')
 
+
 def tokenize():
-    pass
+    word_tokenize()
+
 
 def char_tokenize():
     pass
@@ -56,4 +59,4 @@ def clean_data():
 
 def pre_processing():
     # clean_data()
-    word_tokenize()
+    tokenize()
