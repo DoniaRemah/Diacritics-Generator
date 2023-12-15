@@ -7,12 +7,14 @@ def read_data():
     #     globals.training_sentences = train_file.readlines()
     # with open('dataset/val.txt', 'r',encoding='utf-8') as test_file:
     #     globals.test_sentences = test_file.readlines()
+    #TODO: read the cleaned data from the general file
     with open('dataset/cleaned_train.txt', 'r',encoding='utf-8') as cleaned_train_file:
-        globals.cleaned_train_sentences = cleaned_train_file.readlines()
+        globals.clean_sentences = cleaned_train_file.readlines()
 
 def main():
     read_data()
     # pre.clean_data()
+    pre.pre_processing()
     print("finished")
 
     
