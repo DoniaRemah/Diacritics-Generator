@@ -1,9 +1,9 @@
-import globals  # Import the globals.py file
 import pandas as pd
 import numpy as np
 import nltk
 from nltk.tokenize import word_tokenize
 import re
+import globals  # Import the globals.py file
 
 
 def extract_golden_output():
