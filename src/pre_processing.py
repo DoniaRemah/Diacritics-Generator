@@ -21,9 +21,10 @@ def extract_golden_output(word: str):
         with open('dataset/test_diacritics.txt', 'a',encoding='utf-8') as diacritics_file:
             diacritics_file.write(char + '\t' + diacritics + '\n')
         # Create a list of lists with each character and its associated diacritic
-        char_list = [(char, diacritic) for char, diacritic in zip(char, diacritics)]
+        for char, diacritic in zip(char, diacritics):
+            char_list = (char, diacritic) 
         
-        result_list.append(char_list)
+            result_list.append(char_list)
 
     word_tuple = (word,result_list)
     # list of Lists of chars with their corresponding diacritics
@@ -57,12 +58,23 @@ def tokenize():
         for word in sentence.split():
             extract_golden_output(word)
 
-    #write to file globals.golden_outputs_list
+    # print (globals.golden_outputs_list[0:2])
+
+    # write to file globals.golden_outputs_list
     with open('dataset/golden_outputs.txt', 'w',encoding='utf-8') as golden_outputs_file:
-        for word_tuple in globals.golden_outputs_list:
-            golden_outputs_file.write(word_tuple[0] + '\t' + word_tuple[1] + '\n')
+        # save the global.golden_outputs_list to file as it is to string
+        golden_outputs_file.write(str(globals.golden_outputs_list))
+            
 
+    # //////////////////////////////////////TYPE CASTING///////////////////////////////////////////
+    # READING GOLDEN OUTPUTS FROM FILE
+    # read the contents of the file to a string
+    # with open('dataset/golden_outputs.txt', 'r',encoding='utf-8') as golden_outputs_file:
+    #     golden_outputs_string = golden_outputs_file.read() 
+    #     #  cast this to a list of tuples, where each tuple is a word and a list of tuples of char and diacritic
+    #     trial = eval(golden_outputs_string)
 
+    # print(trial[0:2])
 def char_tokenize():
     pass
 
