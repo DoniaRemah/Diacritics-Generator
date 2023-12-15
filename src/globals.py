@@ -6,5 +6,6 @@ tokenized_chars = []
 golden_outputs = []
 word_vocabulary = set()
 tokenized_sentences = []
-sentences = []
+unclean_sentences = []
 clean_sentences=[]
+golden_outputs_list = []

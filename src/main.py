@@ -14,7 +14,8 @@ def read_data():
 
 def dia_trial():
     arabic_sentence_with_diacritics = "اللُّغَةُ الْعَرَبِيَّةُ جَمِيْلَةٌ وَغَنِيَّةٌ بِالتَّنَوُّعِ."
-
+    # Extract words without diacritics
+    
     # Extract diacritics using a regular expression
     matches = re.finditer(r'([\u0621-\u064a])([\u064b-\u0652]*)', arabic_sentence_with_diacritics)
     # Initialize a list to store the result
@@ -24,15 +25,16 @@ def dia_trial():
     for match in matches:
         char = match.group(1)
         diacritics = match.group(2)
-        print(char,diacritics)
         # write to a file
         with open('dataset/test_diacritics.txt', 'a',encoding='utf-8') as diacritics_file:
             diacritics_file.write(char + '\t' + diacritics + '\n')
         # Create a list of lists with each character and its associated diacritic
-        # word_list = [[char, diacritic] for char, diacritic in zip(word, diacritics)]
+        word_list = [[char, diacritic] for char, diacritic in zip(word, diacritics)]
         
-        # result_list.append(word_list)
+        result_list.append(word_list)
     
+
+
     # print(result_list)
 def main():
     read_data()
