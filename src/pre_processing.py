@@ -7,6 +7,7 @@ from transformers import BertTokenizer
 import globals  # Import the globals.py file
 
 
+
 def extract_golden_output(word: str):
     matches = re.finditer(r'([\u0621-\u064a])([\u064b-\u0652]*)', word)
 
