@@ -3,7 +3,7 @@ import pickle
 
 def saveToTextFile(path, data):
     with open(path, 'w',encoding='utf-8') as file:
-        data.write(file)
+        file.write(str(data))
 
 
 def FromTextFileToPickle(textPath, picklePath):
@@ -11,7 +11,11 @@ def FromTextFileToPickle(textPath, picklePath):
         with open(picklePath, 'wb') as pickleFile:
             pickle.dump(textFile.read(), pickleFile)
 
-def FromPickleToData(picklePath):
+def SaveToPickle(picklePath, data):
+    with open(picklePath, 'wb') as pickleFile:
+        pickle.dump(data, pickleFile)
+
+def loadPickle(picklePath):
     with open(picklePath, 'rb') as pickleFile:
         return pickle.load(pickleFile)
     
