@@ -61,10 +61,10 @@ def tokenize():
 
     # print (globals.golden_outputs_list[0:2])
 
-    # write to file globals.golden_outputs_list
-    with open('dataset/golden_outputs.txt', 'w',encoding='utf-8') as golden_outputs_file:
-        # save the global.golden_outputs_list to file as it is to string
-        golden_outputs_file.write(str(globals.golden_outputs_list))
+    # # write to file globals.golden_outputs_list
+    # with open('dataset/golden_outputs.txt', 'w',encoding='utf-8') as golden_outputs_file:
+    #     # save the global.golden_outputs_list to file as it is to string
+    #     golden_outputs_file.write(str(globals.golden_outputs_list))
             
 
     # //////////////////////////////////////TYPE CASTING///////////////////////////////////////////
