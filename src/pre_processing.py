@@ -5,6 +5,7 @@ from nltk.tokenize import word_tokenize
 import re
 from transformers import BertTokenizer
 import globals  # Import the globals.py file
+import utils
 
 
 
@@ -62,7 +63,7 @@ def tokenize():
     # print (globals.golden_outputs_list[0:2])
 
     # # write to file globals.golden_outputs_list
-    # with open('dataset/golden_outputs.txt', 'w',encoding='utf-8') as golden_outputs_file:
+    # with open('output/golden_outputs.txt', 'w',encoding='utf-8') as golden_outputs_file:
     #     # save the global.golden_outputs_list to file as it is to string
     #     golden_outputs_file.write(str(globals.golden_outputs_list))
             
@@ -70,7 +71,7 @@ def tokenize():
     # //////////////////////////////////////TYPE CASTING///////////////////////////////////////////
     # READING GOLDEN OUTPUTS FROM FILE
     # read the contents of the file to a string
-    # with open('dataset/golden_outputs.txt', 'r',encoding='utf-8') as golden_outputs_file:
+    # with open('output/golden_outputs.txt', 'r',encoding='utf-8') as golden_outputs_file:
     #     golden_outputs_string = golden_outputs_file.read() 
     #     #  cast this to a list of tuples, where each tuple is a word and a list of tuples of char and diacritic
     #     trial = eval(golden_outputs_string)
@@ -95,10 +96,12 @@ def clean_data():
 
     globals.clean_sentences = clean_sentences
     
-    #TODO: write the clean_sentences to general file
-    with open('dataset/cleaned_train.txt', 'w',encoding='utf-8') as clean_train_file:
-        for sentence in clean_sentences:
-            clean_train_file.write(sentence)
+    ############################################ write the clean_sentences to general file ############################################
+    for sentence in clean_sentences:
+        utils.saveToTextFile('output/cleaned_train.txt', sentence)
+        
+            
+    
     
 
 def pre_processing():

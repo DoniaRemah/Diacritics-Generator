@@ -14,3 +14,4 @@ def FromTextFileToPickle(textPath, picklePath):
 def FromPickleToData(picklePath):
     with open(picklePath, 'rb') as pickleFile:
         return pickle.load(pickleFile)
+    
