@@ -14,4 +14,11 @@ letters = set()
 letters_vector = dict()
 words_without_diacritics = []
 diacritics_ids = dict()
+
+
+# men gowa l barra
+# tuple of (char, vector) this is for the char
+# tuple (word, list of tuples of (char, vector)) this is for the word
+# list of tuples of (word, list of tuples of (char, vector)) this is for the sentence
+# list of list of tuples of (word, list of tuples of (char, vector)) this is for the whole dataset 
 char_embeddings = []
