@@ -6,6 +6,9 @@ import re
 from transformers import BertTokenizer
 import globals  # Import the globals.py file
 import utils
+import tensorflow as tf
+
+tokenizer = BertTokenizer.from_pretrained('asafaya/bert-base-arabic')
 
 
 
@@ -44,11 +47,18 @@ def get_words_without_diacritics(sentences):
 
 # this function takes the corpus and assign a vector to each char, preparing it for the models
 # takes as input the tokenized words from the bert tokenizer
+
+#NOTTTEEEEEEE : need to skip the [CLS] and [SEP] tokens elly homa <s> w </s> 
+
 def assign_vector_to_char():
     char_counter = 0
     for sentence in globals.tokenized_sentences:
         sentence_vector_char = []
+        # check for the [CLS] and [SEP] tokens and skip them
         for word in sentence:
+            # check for the [CLS] and [SEP] tokens and skip them
+            # if word == '[CLS]' or word == '[SEP]':
+            #     continue
             result_list = []
             for char in word:
                 char_list = (char_counter,globals.letters_vector.get(char))
@@ -66,12 +76,17 @@ def assign_vector_to_char():
 # This Function converts the sentence into tokens and creates the vocabulary of words
 def word_tokenize():
     #Bert Tokenizer to generate word_vocabulary data already read in cleaned_sentences
-    tokenizer = BertTokenizer.from_pretrained('asafaya/bert-base-arabic')
+    global tokenizer
     #loop over the cleaned sentences and tokenize them
     for sentence in globals.clean_sentences:
         sentence_tokens = tokenizer.tokenize(sentence) #Array of word tokens
+        #insert the [CLS] and [SEP] tokens to the beginning and end of the sentence
+        # sentence_tokens.insert(0,'[CLS]')
+        # sentence_tokens.append('[SEP]')
         globals.tokenized_sentences.append(sentence_tokens) #List of Sentences of List of Word Tokens
         globals.word_vocabulary.update(sentence_tokens) #Set of vocabulary of word tokens
+
+    
     
     utils.saveToTextFile('output/vocab.txt', globals.word_vocabulary)
     utils.SaveToPickle('output/vocab.pickle', globals.word_vocabulary)
@@ -99,6 +114,7 @@ def tokenize():
     # //////////////////////////////////////STEP2: TOKENIZING WORDS AND UPDATING VOCABULARY //////////////////////////////////////////
     # TODO: UNCOMMENT WHEN TESTING
     # word_tokenize()
+    # extract_word_embeddings()
 
     # //////////////////////////////////////STEP3: Extracting Golden Output //////////////////////////////////////////
     # TODO: UNCOMMENT WHEN TESTING   
@@ -115,7 +131,18 @@ def tokenize():
     utils.saveToTextFile('output/yarab.txt', globals.char_embeddings[0])
     
 
-    
+def extract_word_embeddings():
+    global tokenizer
+
+    for tokenized_sentence in globals.tokenized_sentences:
+        # Convert tokens to IDs
+        words_ids = tokenizer.convert_tokens_to_ids(tokenized_sentence)
+
+        # Convert to TensorFlow tensor
+        words_ids_tensor_vectors = tf.constant([words_ids])
+
+        globals.word_embeddings.append(words_ids_tensor_vectors)
+
 
 
 def letter_to_vector():
@@ -161,3 +188,4 @@ def clean_data():
 def pre_processing():
     # clean_data()
     tokenize()
+

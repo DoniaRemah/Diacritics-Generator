@@ -22,3 +22,4 @@ diacritics_ids = dict()
 # list of tuples of (word, list of tuples of (char, vector)) this is for the sentence
 # list of list of tuples of (word, list of tuples of (char, vector)) this is for the whole dataset 
 char_embeddings = []
+word_embeddings = []
