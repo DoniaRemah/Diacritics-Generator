@@ -20,17 +20,20 @@ def extract_golden_output():
             # Iterate over matches
             for match in matches:
                 char = match.group(1)
-                diacritics = match.group(2)
+                diacritic = match.group(2)
                 # Create a list of lists with each character and its associated diacritic
-                for char, diacritic in zip(char, diacritics):
-                    char_list = (char_counter,globals.diacritic2id.get(diacritic))
-                    char_counter += 1
+                char_list = (char_counter,globals.diacritics_ids.get(diacritic))
+                char_counter += 1
                 
-                    result_list.append(char_list)
+                result_list.append(char_list)
 
             word_tuple = (word,result_list)
             # list of Lists of chars with their corresponding diacritics
             globals.golden_outputs_list.append(word_tuple)
+    
+    utils.saveToTextFile('output/golden_outputs.txt', globals.golden_outputs_list)
+    utils.SaveToPickle('output/golden_outputs.pickle', globals.golden_outputs_list)
+
 
 def get_words_without_diacritics(sentences):
     words_without_diacritics = []
@@ -76,10 +79,8 @@ def tokenize():
     # word_tokenize()
 
     # //////////////////////////////////////STEP3: Extracting Golden Output //////////////////////////////////////////
-    # TODO: UNCOMMENT WHEN TESTING
-    # for sentence in globals.clean_sentences:
-    #     for word in sentence.split():
-    #         extract_golden_output(word)       
+    # TODO: UNCOMMENT WHEN TESTING   
+    extract_golden_output()
 
     # //////////////////////////////////////STEP4: Tokenizing Chars //////////////////////////////////////////
     
