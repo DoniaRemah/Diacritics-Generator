@@ -49,10 +49,18 @@ def word_tokenize():
         globals.word_vocabulary.update(sentence_tokens) #Set of vocabulary of word tokens
     
     utils.saveToTextFile('output/vocab.txt', globals.word_vocabulary)
+    utils.SaveToPickle('output/vocab.pickle', globals.word_vocabulary)
     utils.saveToTextFile('output/tokenized_sentences.txt', globals.tokenized_sentences)
+    utils.SaveToPickle('output/tokenized_sentences.pickle', globals.tokenized_sentences)
 
-    
 
+def char_tokenize():
+    for sentence in globals.words_without_diacritics:
+        for word in sentence:
+            for char in word:
+                globals.letters.add(char)   
+
+    utils.saveToTextFile('output/char_vocabulary.txt', globals.letters)
 
 def tokenize():
 
@@ -60,6 +68,8 @@ def tokenize():
     ## list of list of elkalmat men 8ir tashkeel-> kol sentence, kol elklmat bt3tha
     # words_without_diacritics = get_words_without_diacritics(globals.clean_sentences)
     # utils.saveToTextFile('output/words_without_diacritics.txt', words_without_diacritics)
+    # utils.SaveToPickle('output/words_without_diacritics.pickle', words_without_diacritics)
+    # globals.words_without_diacritics=utils.loadPickle('output/words_without_diacritics.pickle')
 
     # //////////////////////////////////////STEP2: TOKENIZING WORDS AND UPDATING VOCABULARY //////////////////////////////////////////
     # TODO: UNCOMMENT WHEN TESTING
@@ -74,9 +84,9 @@ def tokenize():
     # //////////////////////////////////////STEP4: Tokenizing Chars //////////////////////////////////////////
     
     # letter_to_vector()
+    # char_tokenize()
     pass
 
-def char_tokenize():
     
 
 
@@ -90,7 +100,7 @@ def letter_to_vector():
         globals.letters_vector[current_letter] = char_vector
     
     utils.SaveToPickle('output/letters_vector.pickle', globals.letters_vector)
-    
+    utils.saveToTextFile('output/letters_vector.txt', globals.letters_vector)
 
 
 def clean_data():
@@ -99,7 +109,7 @@ def clean_data():
     for sentence in text:
         
         cleaned_sentence = re.sub(r'[^\u0600-\u06FF\u064B-\u065F\u0670\s]', '', sentence)
-        clean_sentences.append(re.sub(r'[،؛]', '', cleaned_sentence))
+        clean_sentences.append(re.sub(r'[،؛؟]', '', cleaned_sentence))
         # \u0600-\u06FF: Arabic characters range.
         # \u064B-\u065F: Arabic diacritic marks range.
         # \u0670: Arabic vowel length mark.
@@ -108,10 +118,14 @@ def clean_data():
         # ،؛: Arabic symbols for comma (،) and semicolon (؛).
 
     globals.clean_sentences = clean_sentences
-    
-    ############################################ write the clean_sentences to general file ############################################
-    for sentence in clean_sentences:
-        utils.saveToTextFile('output/cleaned_train.txt', sentence)
+
+
+    ############################################ write the clean_sentences to file ############################################
+
+    with open('output/cleaned_train.txt', 'w',encoding='utf-8') as cleaned_train_file:
+        for sentence in globals.clean_sentences:
+            cleaned_train_file.write(sentence)
+        
         
             
     

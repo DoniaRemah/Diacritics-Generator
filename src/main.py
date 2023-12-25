@@ -11,15 +11,27 @@ def read_data():
     # with open('dataset/val.txt', 'r',encoding='utf-8') as test_file:
     #     globals.test_sentences = test_file.readlines()
 
-    globals.letters_vector = utils.loadPickle('output/letters_vector.pickle')
+
+    # globals.letters_vector = utils.loadPickle('output/letters_vector.pickle')
     # globals.tokenized_sentences= eval(utils.loadPickle('output/tokenized_sentences.pickle'))
     # globals.letters = utils.loadPickle('Letters and Diacritics/arabic_letters.pickle')
     # globals.tokenized_sentence_chars= utils.loadPickle('output/tokenized_sentence_chars.pickle')
+    
     # globals.char_vocabulary= utils.loadPickle('output/char_vocabulary.pickle')
+    # utils.saveToTextFile("output/char_vocabulary.txt",globals.char_vocabulary)
+    # utils.FromTextFileToPickle("output/words_without_diacritics.txt","output/words_without_diacritics.pickle")
+    # globals.words_without_diacritics= eval(utils.loadPickle("output/words_without_diacritics.pickle"))
     ################################################## Reading Cleaned Data ##################################################
-    with open('dataset/cleaned_train.txt', 'r',encoding='utf-8') as cleaned_train_file:
+    with open('output/cleaned_train.txt', 'r',encoding='utf-8') as cleaned_train_file:
         globals.clean_sentences = cleaned_train_file.readlines()
+
+    globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
+
+    # utils.FromTextFileToPickle("output/char_vocabulary.txt","output/char_vocabulary.pickle")
+    # globals.letters = eval(utils.loadPickle("output/char_vocabulary.pickle"))
+    
     # TODO: READ VOCAB  
+    # pass
 
 
 def main():

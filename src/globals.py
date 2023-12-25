@@ -10,5 +10,6 @@ unclean_sentences = [] # Sentences provided by the TAs with diacritics uncleaned
 clean_sentences=[]
 # a list of tuples, each one contains a word and a list of tuples of char and diacritic
 golden_outputs_list = []
-letters = {}
+letters = set()
 letters_vector = dict()
+words_without_diacritics = []
