@@ -29,7 +29,9 @@ def read_data():
 
     # utils.FromTextFileToPickle("output/char_vocabulary.txt","output/char_vocabulary.pickle")
     # globals.letters = eval(utils.loadPickle("output/char_vocabulary.pickle"))
-    
+    # ################################### READING DIACRITIC IDS
+    globals.diacritics_ids = utils.loadPickle('Letters and Diacritics/diacritic2id.pickle')
+
     # TODO: READ VOCAB  
     # pass
 

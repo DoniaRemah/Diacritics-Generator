@@ -13,3 +13,4 @@ golden_outputs_list = []
 letters = set()
 letters_vector = dict()
 words_without_diacritics = []
+diacritics_ids = dict()

@@ -9,28 +9,28 @@ import utils
 
 
 
-def extract_golden_output(word: str):
-    matches = re.finditer(r'([\u0621-\u064a])([\u064b-\u0652]*)', word)
+def extract_golden_output():
+    char_counter = 0
+    for sentence in globals.clean_sentences:
+        for word in sentence.split():
+            matches = re.finditer(r'([\u0621-\u064a])([\u064b-\u0652]*)', word)
 
-    # List of tuples of characters and their diacritics
-    result_list = []
+            # List of tuples of characters and their diacritics
+            result_list = []
+            # Iterate over matches
+            for match in matches:
+                char = match.group(1)
+                diacritics = match.group(2)
+                # Create a list of lists with each character and its associated diacritic
+                for char, diacritic in zip(char, diacritics):
+                    char_list = (char_counter,globals.diacritic2id.get(diacritic))
+                    char_counter += 1
+                
+                    result_list.append(char_list)
 
-    # Iterate over matches
-    for match in matches:
-        char = match.group(1)
-        diacritics = match.group(2)
-        # write to a file
-        with open('dataset/test_diacritics.txt', 'a',encoding='utf-8') as diacritics_file:
-            diacritics_file.write(char + '\t' + diacritics + '\n')
-        # Create a list of lists with each character and its associated diacritic
-        for char, diacritic in zip(char, diacritics):
-            char_list = (char, diacritic) 
-        
-            result_list.append(char_list)
-
-    word_tuple = (word,result_list)
-    # list of Lists of chars with their corresponding diacritics
-    globals.golden_outputs_list.append(word_tuple)
+            word_tuple = (word,result_list)
+            # list of Lists of chars with their corresponding diacritics
+            globals.golden_outputs_list.append(word_tuple)
 
 def get_words_without_diacritics(sentences):
     words_without_diacritics = []
