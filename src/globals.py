@@ -14,3 +14,4 @@ letters = set()
 letters_vector = dict()
 words_without_diacritics = []
 diacritics_ids = dict()
+char_embeddings = []

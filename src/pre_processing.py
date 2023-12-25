@@ -41,6 +41,28 @@ def get_words_without_diacritics(sentences):
         words_without_diacritics.append(re.findall(r'[\u0600-\u06FF]+', re.sub(r'[\u064B-\u065F]', '', sentence)))
     return words_without_diacritics
 
+
+# this function takes the corpus and assign a vector to each char, preparing it for the models
+# takes as input the tokenized words from the bert tokenizer
+def assign_vector_to_char():
+    char_counter = 0
+    for sentence in globals.tokenized_sentences:
+        sentence_vector_char = []
+        for word in sentence:
+            result_list = []
+            for char in word:
+                char_list = (char_counter,globals.letters_vector.get(char))
+                char_counter += 1
+                result_list.append(char_list)
+
+            word_tuple = (word,result_list)
+            sentence_vector_char.append(word_tuple)
+        globals.char_embeddings.append(sentence_vector_char)
+    
+    # utils.saveToTextFile('output/char_embeddings.txt', globals.char_embeddings)
+    utils.SaveToPickle('output/char_embeddings.pickle', globals.char_embeddings)
+
+
 # This Function converts the sentence into tokens and creates the vocabulary of words
 def word_tokenize():
     #Bert Tokenizer to generate word_vocabulary data already read in cleaned_sentences
@@ -80,13 +102,18 @@ def tokenize():
 
     # //////////////////////////////////////STEP3: Extracting Golden Output //////////////////////////////////////////
     # TODO: UNCOMMENT WHEN TESTING   
-    extract_golden_output()
+    # extract_golden_output()
 
     # //////////////////////////////////////STEP4: Tokenizing Chars //////////////////////////////////////////
     
     # letter_to_vector()
     # char_tokenize()
-    pass
+
+    # //////////////////////////////////////STEP5: Assigning Vector to Char /////////////////////////////////////////
+    # assign_vector_to_char()
+    globals.char_embeddings=utils.loadPickle('output/char_embeddings.pickle')
+    utils.saveToTextFile('output/yarab.txt', globals.char_embeddings[0])
+    
 
     
 
@@ -101,7 +128,6 @@ def letter_to_vector():
         globals.letters_vector[current_letter] = char_vector
     
     utils.SaveToPickle('output/letters_vector.pickle', globals.letters_vector)
-    utils.saveToTextFile('output/letters_vector.txt', globals.letters_vector)
 
 
 def clean_data():

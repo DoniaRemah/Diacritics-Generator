@@ -13,27 +13,26 @@ def read_data():
 
 
     # globals.letters_vector = utils.loadPickle('output/letters_vector.pickle')
-    # globals.tokenized_sentences= eval(utils.loadPickle('output/tokenized_sentences.pickle'))
+    # globals.tokenized_sentences= utils.loadPickle('output/tokenized_sentences.pickle')
     # globals.letters = utils.loadPickle('Letters and Diacritics/arabic_letters.pickle')
     # globals.tokenized_sentence_chars= utils.loadPickle('output/tokenized_sentence_chars.pickle')
     
     # globals.char_vocabulary= utils.loadPickle('output/char_vocabulary.pickle')
     # utils.saveToTextFile("output/char_vocabulary.txt",globals.char_vocabulary)
-    # utils.FromTextFileToPickle("output/words_without_diacritics.txt","output/words_without_diacritics.pickle")
-    # globals.words_without_diacritics= eval(utils.loadPickle("output/words_without_diacritics.pickle"))
+    # globals.words_without_diacritics= utils.loadPickle("output/words_without_diacritics.pickle")
     ################################################## Reading Cleaned Data ##################################################
-    with open('output/cleaned_train.txt', 'r',encoding='utf-8') as cleaned_train_file:
-        globals.clean_sentences = cleaned_train_file.readlines()
+    # with open('output/cleaned_train.txt', 'r',encoding='utf-8') as cleaned_train_file:
+    #     globals.clean_sentences = cleaned_train_file.readlines()
 
-    globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
+    # globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
 
     # utils.FromTextFileToPickle("output/char_vocabulary.txt","output/char_vocabulary.pickle")
     # globals.letters = eval(utils.loadPickle("output/char_vocabulary.pickle"))
     # ################################### READING DIACRITIC IDS
-    globals.diacritics_ids = utils.loadPickle('Letters and Diacritics/diacritic2id.pickle')
+    # globals.diacritics_ids = utils.loadPickle('Letters and Diacritics/diacritic2id.pickle')
 
     # TODO: READ VOCAB  
-    # pass
+    pass
 
 
 def main():
