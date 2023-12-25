@@ -21,10 +21,10 @@ def read_data():
     # utils.saveToTextFile("output/char_vocabulary.txt",globals.char_vocabulary)
     # globals.words_without_diacritics= utils.loadPickle("output/words_without_diacritics.pickle")
     ################################################## Reading Cleaned Data ##################################################
-    # with open('output/cleaned_train.txt', 'r',encoding='utf-8') as cleaned_train_file:
-    #     globals.clean_sentences = cleaned_train_file.readlines()
+    with open('output/cleaned_train.txt', 'r',encoding='utf-8') as cleaned_train_file:
+        globals.clean_sentences = cleaned_train_file.readlines()
 
-    # globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
+    globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
 
     # utils.FromTextFileToPickle("output/char_vocabulary.txt","output/char_vocabulary.pickle")
     # globals.letters = eval(utils.loadPickle("output/char_vocabulary.pickle"))
@@ -32,7 +32,7 @@ def read_data():
     # globals.diacritics_ids = utils.loadPickle('Letters and Diacritics/diacritic2id.pickle')
 
     # TODO: READ VOCAB  
-    pass
+    # pass
 
 
 def main():

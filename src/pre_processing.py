@@ -34,7 +34,7 @@ def extract_golden_output():
             # list of Lists of chars with their corresponding diacritics
             globals.golden_outputs_list.append(word_tuple)
     
-    utils.saveToTextFile('output/golden_outputs.txt', globals.golden_outputs_list)
+    # utils.saveToTextFile('output/golden_outputs.txt', globals.golden_outputs_list)
     utils.SaveToPickle('output/golden_outputs.pickle', globals.golden_outputs_list)
 
 
@@ -88,48 +88,11 @@ def word_tokenize():
 
     
     
-    utils.saveToTextFile('output/vocab.txt', globals.word_vocabulary)
+    # utils.saveToTextFile('output/vocab.txt', globals.word_vocabulary)
     utils.SaveToPickle('output/vocab.pickle', globals.word_vocabulary)
-    utils.saveToTextFile('output/tokenized_sentences.txt', globals.tokenized_sentences)
+    # utils.saveToTextFile('output/tokenized_sentences.txt', globals.tokenized_sentences)
     utils.SaveToPickle('output/tokenized_sentences.pickle', globals.tokenized_sentences)
 
-
-def char_tokenize():
-    for sentence in globals.words_without_diacritics:
-        for word in sentence:
-            for char in word:
-                globals.letters.add(char)   
-
-    utils.saveToTextFile('output/char_vocabulary.txt', globals.letters)
-
-def tokenize():
-
-    # //////////////////////////////////////STEP1: GETTING WORDS WITHOUT DIACRITICS//////////////////////////////////////////
-    ## list of list of elkalmat men 8ir tashkeel-> kol sentence, kol elklmat bt3tha
-    # words_without_diacritics = get_words_without_diacritics(globals.clean_sentences)
-    # utils.saveToTextFile('output/words_without_diacritics.txt', words_without_diacritics)
-    # utils.SaveToPickle('output/words_without_diacritics.pickle', words_without_diacritics)
-    # globals.words_without_diacritics=utils.loadPickle('output/words_without_diacritics.pickle')
-
-    # //////////////////////////////////////STEP2: TOKENIZING WORDS AND UPDATING VOCABULARY //////////////////////////////////////////
-    # TODO: UNCOMMENT WHEN TESTING
-    # word_tokenize()
-    # extract_word_embeddings()
-
-    # //////////////////////////////////////STEP3: Extracting Golden Output //////////////////////////////////////////
-    # TODO: UNCOMMENT WHEN TESTING   
-    # extract_golden_output()
-
-    # //////////////////////////////////////STEP4: Tokenizing Chars //////////////////////////////////////////
-    
-    # letter_to_vector()
-    # char_tokenize()
-
-    # //////////////////////////////////////STEP5: Assigning Vector to Char /////////////////////////////////////////
-    # assign_vector_to_char()
-    globals.char_embeddings=utils.loadPickle('output/char_embeddings.pickle')
-    utils.saveToTextFile('output/yarab.txt', globals.char_embeddings[0])
-    
 
 def extract_word_embeddings():
     global tokenizer
@@ -141,8 +104,11 @@ def extract_word_embeddings():
         # Convert to TensorFlow tensor
         words_ids_tensor_vectors = tf.constant([words_ids])
 
+        # for each sentence, a list of words, for each word, an embedding vector
         globals.word_embeddings.append(words_ids_tensor_vectors)
 
+    # utils.saveToTextFile('output/word_embeddings.txt', globals.word_embeddings)
+    utils.SaveToPickle('output/word_embeddings.pickle', globals.word_embeddings)
 
 
 def letter_to_vector():
@@ -155,6 +121,45 @@ def letter_to_vector():
         globals.letters_vector[current_letter] = char_vector
     
     utils.SaveToPickle('output/letters_vector.pickle', globals.letters_vector)
+
+def char_tokenize():
+    for sentence in globals.words_without_diacritics:
+        for word in sentence:
+            for char in word:
+                globals.letters.add(char)   
+
+    # utils.saveToTextFile('output/char_vocabulary.txt', globals.letters)
+    utils.SaveToPickle('output/char_vocabulary.pickle', globals.letters)
+
+def tokenize():
+
+    # //////////////////////////////////////STEP1: GETTING WORDS WITHOUT DIACRITICS//////////////////////////////////////////
+    # list of list of elkalmat men 8ir tashkeel-> kol sentence, kol elklmat bt3tha
+    words_without_diacritics = get_words_without_diacritics(globals.clean_sentences)
+    # utils.saveToTextFile('output/words_without_diacritics.txt', words_without_diacritics)
+    utils.SaveToPickle('output/words_without_diacritics.pickle', words_without_diacritics)
+    globals.words_without_diacritics=utils.loadPickle('output/words_without_diacritics.pickle')
+
+    # //////////////////////////////////////STEP2: TOKENIZING WORDS AND UPDATING VOCABULARY //////////////////////////////////////////
+    # TODO: UNCOMMENT WHEN TESTING
+    word_tokenize()
+    extract_word_embeddings()
+
+    # //////////////////////////////////////STEP3: Extracting Golden Output //////////////////////////////////////////
+    # TODO: UNCOMMENT WHEN TESTING   
+    extract_golden_output()
+
+    # //////////////////////////////////////STEP4: Tokenizing Chars //////////////////////////////////////////
+    
+    letter_to_vector()
+    char_tokenize()
+
+    # //////////////////////////////////////STEP5: Assigning Vector to Char /////////////////////////////////////////
+    assign_vector_to_char()
+    # globals.char_embeddings=utils.loadPickle('output/char_embeddings.pickle')
+    # utils.saveToTextFile('output/yarab.txt', globals.char_embeddings[0])
+    
+
 
 
 def clean_data():
