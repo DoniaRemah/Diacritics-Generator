@@ -3,12 +3,14 @@ import numpy as np
 import nltk
 from nltk.tokenize import word_tokenize
 import re
-from transformers import BertTokenizer
+from transformers import BertTokenizer, BertModel
 import globals  # Import the globals.py file
 import utils
 import tensorflow as tf
+import torch
 
 tokenizer = BertTokenizer.from_pretrained('asafaya/bert-base-arabic')
+model = BertModel.from_pretrained('asafaya/bert-base-arabic')
 
 
 
@@ -95,17 +97,21 @@ def word_tokenize():
 
 
 def extract_word_embeddings():
-    global tokenizer
+    global tokenizer, model
 
     for tokenized_sentence in globals.tokenized_sentences:
-        # Convert tokens to IDs
-        words_ids = tokenizer.convert_tokens_to_ids(tokenized_sentence)
-
-        # Convert to TensorFlow tensor
-        words_ids_tensor_vectors = tf.constant([words_ids])
-
-        # for each sentence, a list of words, for each word, an embedding vector
-        globals.word_embeddings.append(words_ids_tensor_vectors)
+        word_embeddings = []
+        for token in tokenized_sentence:
+            input_ids = tokenizer.encode(token, return_tensors="pt")
+            with torch.no_grad():
+                outputs = model(input_ids)
+            # Extract embeddings for the first token (CLS token)
+            cls_embedding = outputs.last_hidden_state[:, 0, :]
+            word_embeddings.append(cls_embedding)
+        
+        # Concatenate the word embeddings along the first dimension to get a tensor
+        word_embeddings = torch.cat(word_embeddings, dim=0)
+        globals.word_embeddings.append(word_embeddings)
 
     # utils.saveToTextFile('output/word_embeddings.txt', globals.word_embeddings)
     utils.SaveToPickle('output/word_embeddings.pickle', globals.word_embeddings)
