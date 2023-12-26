@@ -3,14 +3,17 @@ import numpy as np
 import nltk
 from nltk.tokenize import word_tokenize
 import re
-from transformers import BertTokenizer, BertModel
+from transformers import AutoTokenizer,AutoModel
 import globals  # Import the globals.py file
 import utils
 import tensorflow as tf
 import torch
 
-tokenizer = BertTokenizer.from_pretrained('asafaya/bert-base-arabic')
-model = BertModel.from_pretrained('asafaya/bert-base-arabic')
+# bert tokenizer
+tokenizer = AutoTokenizer.from_pretrained('asafaya/bert-base-arabic')
+model= AutoModel.from_pretrained('asafaya/bert-base-arabic')
+
+
 
 
 
@@ -81,7 +84,7 @@ def word_tokenize():
     global tokenizer
     #loop over the cleaned sentences and tokenize them
     for sentence in globals.clean_sentences:
-        sentence_tokens = tokenizer.tokenize(sentence) #Array of word tokens
+        sentence_tokens = tokenizer.tokenize(sentence, return_tensors="pt", truncation=True, max_length=400) #Array of word tokens
         #insert the [CLS] and [SEP] tokens to the beginning and end of the sentence
         # sentence_tokens.insert(0,'[CLS]')
         # sentence_tokens.append('[SEP]')
@@ -100,18 +103,9 @@ def extract_word_embeddings():
     global tokenizer, model
 
     for tokenized_sentence in globals.tokenized_sentences:
-        word_embeddings = []
-        for token in tokenized_sentence:
-            input_ids = tokenizer.encode(token, return_tensors="pt")
-            with torch.no_grad():
-                outputs = model(input_ids)
-            # Extract embeddings for the first token (CLS token)
-            cls_embedding = outputs.last_hidden_state[:, 0, :]
-            word_embeddings.append(cls_embedding)
-        
-        # Concatenate the word embeddings along the first dimension to get a tensor
-        word_embeddings = torch.cat(word_embeddings, dim=0)
-        globals.word_embeddings.append(word_embeddings)
+        outputs = model(**tokenized_sentence)
+        result=outputs.last_hidden_state.detach().numpy()
+        globals.word_embeddings.append(result)
 
     # utils.saveToTextFile('output/word_embeddings.txt', globals.word_embeddings)
     utils.SaveToPickle('output/word_embeddings.pickle', globals.word_embeddings)
@@ -129,7 +123,7 @@ def letter_to_vector():
     utils.SaveToPickle('output/letters_vector.pickle', globals.letters_vector)
 
 def char_tokenize():
-    for sentence in globals.words_without_diacritics:
+    for sentence in globals.tokenized_sentences:
         for word in sentence:
             for char in word:
                 globals.letters.add(char)   
