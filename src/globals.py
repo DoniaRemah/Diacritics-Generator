@@ -23,3 +23,4 @@ diacritics_ids = dict()
 # list of list of tuples of (word, list of tuples of (char, vector)) this is for the whole dataset 
 char_embeddings = []
 word_embeddings = []
+padded_tokenized_sentences=[]

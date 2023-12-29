@@ -62,8 +62,8 @@ def assign_vector_to_char():
         # check for the [CLS] and [SEP] tokens and skip them
         for word in sentence:
             # check for the [CLS] and [SEP] tokens and skip them
-            # if word == '[CLS]' or word == '[SEP]':
-            #     continue
+            if word == '[CLS]' or word == '[SEP]':
+                continue
             result_list = []
             for char in word:
                 char_list = (char_counter,globals.letters_vector.get(char))
@@ -82,28 +82,51 @@ def assign_vector_to_char():
 def word_tokenize():
     #Bert Tokenizer to generate word_vocabulary data already read in cleaned_sentences
     global tokenizer
+    global model
+    
     #loop over the cleaned sentences and tokenize them
     for sentence in globals.clean_sentences:
-        sentence_tokens = tokenizer.tokenize(sentence, return_tensors="pt", truncation=True, max_length=400) #Array of word tokens
+        result_list_of_lists=[]
+        # sentence_tokens = tokenizer.tokenize(sentence, return_tensors="pt", truncation=True, max_length=400, padding=True) #Array of word token
+        sentence_tokens = tokenizer(sentence, return_tensors='pt',truncation=True, max_length=400, padding=True)
+        output = model(**sentence_tokens)
+        # result=output.last_hidden_state.detach().numpy()
+        result=output.last_hidden_state
+        for i in range(result.shape[1]):
+            list_of_embeddings=result[:, i].tolist()
+            result_list_of_lists.append(list_of_embeddings[0])
+        lenght=len(result_list_of_lists)
+        length0=len(result_list_of_lists[0])
+        globals.word_embeddings.append(result_list_of_lists)
+
+        token_ids = sentence_tokens['input_ids'][0].tolist()
+        tokens = tokenizer.convert_ids_to_tokens(token_ids)
+        # utils.saveToTextFile('output/word_embeddings.txt', globals.word_embeddings)
         #insert the [CLS] and [SEP] tokens to the beginning and end of the sentence
         # sentence_tokens.insert(0,'[CLS]')
         # sentence_tokens.append('[SEP]')
-        globals.tokenized_sentences.append(sentence_tokens) #List of Sentences of List of Word Tokens
-        globals.word_vocabulary.update(sentence_tokens) #Set of vocabulary of word tokens
+        # Ensure all tokenized sentences have the same length by padding
+        globals.tokenized_sentences.append(tokens) #List of Sentences of List of Word Tokens
+        globals.word_vocabulary.update(tokens) #Set of vocabulary of word tokens
 
-    
+    # max_length = max(len(tokens) for tokens in globals.tokenized_sentences)
+    # globals.padded_tokenized_sentences = [tokens + ['[PAD]'] * (max_length - len(tokens)) for tokens in globals.tokenized_sentences]
     
     # utils.saveToTextFile('output/vocab.txt', globals.word_vocabulary)
     utils.SaveToPickle('output/vocab.pickle', globals.word_vocabulary)
     # utils.saveToTextFile('output/tokenized_sentences.txt', globals.tokenized_sentences)
     utils.SaveToPickle('output/tokenized_sentences.pickle', globals.tokenized_sentences)
+    utils.SaveToPickle('output/word_embeddings.pickle', globals.word_embeddings)
+    # utils.SaveToPickle('output/padded_tokenized_sentences.pickle', globals.padded_tokenized_sentences)
 
 
 def extract_word_embeddings():
     global tokenizer, model
 
     for tokenized_sentence in globals.tokenized_sentences:
-        outputs = model(**tokenized_sentence)
+        input_ids = tokenizer(tokenized_sentence, return_tensors="pt")["input_ids"]
+        model_input={"input_ids":input_ids}
+        outputs = model(**model_input)
         result=outputs.last_hidden_state.detach().numpy()
         globals.word_embeddings.append(result)
 
@@ -133,31 +156,39 @@ def char_tokenize():
 
 def tokenize():
 
-    # //////////////////////////////////////STEP1: GETTING WORDS WITHOUT DIACRITICS//////////////////////////////////////////
+    # # //////////////////////////////////////STEP1: GETTING WORDS WITHOUT DIACRITICS//////////////////////////////////////////
     # list of list of elkalmat men 8ir tashkeel-> kol sentence, kol elklmat bt3tha
     words_without_diacritics = get_words_without_diacritics(globals.clean_sentences)
     # utils.saveToTextFile('output/words_without_diacritics.txt', words_without_diacritics)
     utils.SaveToPickle('output/words_without_diacritics.pickle', words_without_diacritics)
     globals.words_without_diacritics=utils.loadPickle('output/words_without_diacritics.pickle')
 
-    # //////////////////////////////////////STEP2: TOKENIZING WORDS AND UPDATING VOCABULARY //////////////////////////////////////////
-    # TODO: UNCOMMENT WHEN TESTING
+    # # //////////////////////////////////////STEP2: TOKENIZING WORDS AND UPDATING VOCABULARY //////////////////////////////////////////
+    # # TODO: UNCOMMENT WHEN TESTING
     word_tokenize()
-    extract_word_embeddings()
 
-    # //////////////////////////////////////STEP3: Extracting Golden Output //////////////////////////////////////////
-    # TODO: UNCOMMENT WHEN TESTING   
+    # la8enaha men hayatnaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    # extract_word_embeddings()
+
+    # # //////////////////////////////////////STEP3: Extracting Golden Output //////////////////////////////////////////
+    # # TODO: UNCOMMENT WHEN TESTING   
     extract_golden_output()
 
-    # //////////////////////////////////////STEP4: Tokenizing Chars //////////////////////////////////////////
+    # # //////////////////////////////////////STEP4: Tokenizing Chars //////////////////////////////////////////
     
     letter_to_vector()
     char_tokenize()
 
-    # //////////////////////////////////////STEP5: Assigning Vector to Char /////////////////////////////////////////
+    # # //////////////////////////////////////STEP5: Assigning Vector to Char /////////////////////////////////////////
     assign_vector_to_char()
-    # globals.char_embeddings=utils.loadPickle('output/char_embeddings.pickle')
-    # utils.saveToTextFile('output/yarab.txt', globals.char_embeddings[0])
+    # globals.word_embeddings=utils.loadPickle('output/word_embeddings.pickle')
+    # utils.saveToTextFile('output/yarab.txt', globals.word_embeddings[0])
+    # globals.tokenized_sentences=utils.loadPickle('output/tokenized_sentences.pickle')
+    # utils.saveToTextFile('output/yarab.txt', globals.tokenized_sentences[0])
+    # print(len(globals.word_embeddings[0][0]))
+
+    
+
     
 
 
