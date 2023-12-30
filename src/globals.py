@@ -24,3 +24,8 @@ diacritics_ids = dict()
 char_embeddings = []
 word_embeddings = []
 padded_tokenized_sentences=[]
+
+model_word_embeddings = []
+model_char_embeddings = []
+model_chars_index_per_corpus= []
+model_labels = []   
