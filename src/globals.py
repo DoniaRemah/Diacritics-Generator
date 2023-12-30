@@ -2,7 +2,6 @@ test_sentences = []  # Sentences provided by the TAs with diacritics uncleaned, 
 # cleaned_train_sentences = []
 tokenized_words = [] # List of Word Tokens
 tokenized_chars = [] # List of Char Tokens
-golden_outputs = [] 
 word_vocabulary = set()
 tokenized_sentences = [] # List of Sentences of List of Word Tokens
 tokenized_sentence_chars = [] 
@@ -32,3 +31,8 @@ model_word_embeddings = []
 model_char_embeddings = []
 model_chars_index_per_corpus= []
 model_labels = []   
+
+our_model = None
+
+char_embeddings_numpy = None
+word_embeddings_numpy = None

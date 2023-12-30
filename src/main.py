@@ -19,7 +19,6 @@ def read_data():
     #     globals.test_sentences = test_file.readlines()
 
 
-
     globals.letters={'#','س', 'ك', 'ن', 'ص', 'ة', 'ء', 'ؤ', 'ا', 'ع', 'ذ', 'ظ', 'ز', 'د', 'خ', 'ف', 'ش', 'ي', 'ض', 'ه', 'ر', 'ئ', 'إ', 'أ', 'غ', 'و', 'ب', 'ق', 'ى', 'ح', 'آ', 'ت', 'ج', 'م', 'ل', 'ط', 'ث'}
     
 
@@ -28,8 +27,13 @@ def read_data():
 
 def main():
     read_data()
-    # pre.clean_data()
+    # # pre.clean_data()
+
+    globals.tokenized_sentences = utils.loadPickle('output/tokenized_sentences_0_2224.pickle')
+    # utils.saveToTextFile('tokenized_sentences_0_2224.txt',globals.tokenized_sentences)
+
     pre.pre_processing()
+
 
     print("finished preprocessing")
     

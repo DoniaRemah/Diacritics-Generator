@@ -37,6 +37,7 @@ def clean_data():
 def word_tokenize():
     #Auto Tokenizer to generate word_vocabulary data already read in cleaned_sentences
     global tokenizer
+
     global model
 
     sentence_tokens = []
@@ -46,7 +47,7 @@ def word_tokenize():
     #loop over the cleaned sentences and tokenize them
     for sentence in globals.clean_sentences:
         sentence_word_embeddings=[]
-
+        
         chunks =[]
         # tokenize the sentence
         sentence_tokens = tokenizer(sentence,return_tensors='pt') 
@@ -86,11 +87,15 @@ def word_tokenize():
     utils.SaveToPickle('output/vocab.pickle', globals.word_vocabulary)
     utils.SaveToPickle('output/tokenized_sentences.pickle', globals.tokenized_sentences)
     utils.SaveToPickle('output/word_embeddings.pickle', globals.word_embeddings)
+            
 
 def extract_golden_output():
     char_counter = 0
+    
     for sentence in globals.clean_sentences:
+        word_tuples_list = []
         for word in sentence.split():
+
             matches = re.finditer(r'([\u0621-\u064a])([\u064b-\u0652]*)', word)
 
             # List of tuples of characters and their diacritics
@@ -106,8 +111,9 @@ def extract_golden_output():
                 result_list.append(char_list)
 
             word_tuple = (word,result_list)
+            word_tuples_list.append(word_tuple)
             # list of Lists of chars with their corresponding diacritics
-            globals.golden_outputs_list.append(word_tuple)
+        globals.golden_outputs_list.append(word_tuples_list)
     
     utils.SaveToPickle('output/golden_outputs.pickle', globals.golden_outputs_list)
 
@@ -135,18 +141,23 @@ def assign_vector_to_char():
         for word in sentence:
             # check for the [CLS] and [SEP] tokens and skip them
             if word == '[CLS]' or word == '[SEP]':
+                word_tuple=None
+                sentence_vector_char.append(word_tuple)
                 continue
             result_list = []
             for char in word:
-                char_list = (char_counter,globals.letters_vector.get(char))
-                char_counter += 1
+                if char != '#':
+                    char_list = (char_counter,globals.letters_vector.get(char))
+                    char_counter += 1
+                else:
+                    char_list = (-1,globals.letters_vector.get(char))
+                    
                 result_list.append(char_list)
-
             word_tuple = (word,result_list)
             sentence_vector_char.append(word_tuple)
         globals.char_embeddings.append(sentence_vector_char)
     
-    utils.SaveToPickle('output/char_embeddings.pickle', globals.char_embeddings)
+    utils.SaveToPickle('output/char_embeddings_0_2224.pickle', globals.char_embeddings)
 
 
 
@@ -155,23 +166,23 @@ def assign_vector_to_char():
 def tokenize():
 
     # # ////////////////////////////////////// TOKENIZING WORDS, GENERATE WORD EMBEDDINGS AND UPDATING VOCABULARY //////////////////////////////////////////
-    word_tokenize()
+    # word_tokenize()
 
-    print("finished tokenizing words")
+    # print("finished tokenizing words")
 
 
     # # //////////////////////////////////////Extracting Golden Output //////////////////////////////////////////
-    extract_golden_output()
+    # extract_golden_output()
 
-    print("finished extracting golden output")
+    # print("finished extracting golden output")
 
-    # # //////////////////////////////////////One hot vector for every char in vocab //////////////////////////////////////////
+    # # # //////////////////////////////////////One hot vector for every char in vocab //////////////////////////////////////////
     
     letter_to_vector()
 
-    print("finished tokenizing chars")
+    # print("finished tokenizing chars")
 
-    # # //////////////////////////////////////Assigning Vector to every char in the corpus /////////////////////////////////////////
+    # # # //////////////////////////////////////Assigning Vector to every char in the corpus /////////////////////////////////////////
     assign_vector_to_char()
 
 
