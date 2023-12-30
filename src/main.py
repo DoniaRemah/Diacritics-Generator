@@ -14,7 +14,8 @@ def read_data():
 
     # globals.letters_vector = utils.loadPickle('output/letters_vector.pickle')
     # globals.tokenized_sentences= utils.loadPickle('output/tokenized_sentences.pickle')
-    globals.letters = utils.loadPickle('Letters and Diacritics/arabic_letters.pickle')
+    # globals.letters = utils.loadPickle('Letters and Diacritics/arabic_letters.pickle')
+    globals.letters={'#','س', 'ك', 'ن', 'ص', 'ة', 'ء', 'ؤ', 'ا', 'ع', 'ذ', 'ظ', 'ز', 'د', 'خ', 'ف', 'ش', 'ي', 'ض', 'ه', 'ر', 'ئ', 'إ', 'أ', 'غ', 'و', 'ب', 'ق', 'ى', 'ح', 'آ', 'ت', 'ج', 'م', 'ل', 'ط', 'ث'}
     # globals.tokenized_sentence_chars= utils.loadPickle('output/tokenized_sentence_chars.pickle')
     
     # globals.char_vocabulary= utils.loadPickle('output/char_vocabulary.pickle')
@@ -39,6 +40,12 @@ def main():
     read_data()
     # pre.clean_data()
     pre.pre_processing()
+
+    # globals.word_embeddings=utils.loadPickle('output/word_embeddings.pickle')
+    # utils.saveToTextFile('output/yarab.txt', globals.word_embeddings)
+    # globals.char_embeddings=utils.loadPickle('output/char_embeddings.pickle')
+    # utils.saveToTextFile('output/yarab2.txt', globals.char_embeddings)
+
     print("finished")
     
 

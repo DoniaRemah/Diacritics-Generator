@@ -1,13 +1,9 @@
-import pandas as pd
 import numpy as np
-import nltk
-from nltk.tokenize import word_tokenize
 import re
 from transformers import AutoTokenizer,AutoModel
 import globals  # Import the globals.py file
 import utils
 import tensorflow as tf
-import torch
 
 # bert tokenizer
 tokenizer = AutoTokenizer.from_pretrained('asafaya/bert-base-arabic')
@@ -83,21 +79,44 @@ def word_tokenize():
     #Bert Tokenizer to generate word_vocabulary data already read in cleaned_sentences
     global tokenizer
     global model
+
+    sentence_tokens = []
+
+    count =0
     
     #loop over the cleaned sentences and tokenize them
-    for sentence in globals.clean_sentences:
-        result_list_of_lists=[]
+    for sent_index,sentence in enumerate(globals.clean_sentences[2225:]):
+        sentence_word_embeddings=[]
         # sentence_tokens = tokenizer.tokenize(sentence, return_tensors="pt", truncation=True, max_length=400, padding=True) #Array of word token
-        sentence_tokens = tokenizer(sentence, return_tensors='pt',truncation=True, max_length=400, padding=True)
-        output = model(**sentence_tokens)
+        chunks =[]
+        #split the sentence into chunks of 400 words or less
+
+    
+        sentence_tokens = tokenizer(sentence,return_tensors='pt') 
+
+        # Check if tokenized sentence exceeds 400 tokens
+        if sentence_tokens['input_ids'].shape[1] > 400:
+
+            # Split into chunks of 400 tokens
+            for i in range(0, sentence_tokens['input_ids'].shape[1], 400):
+                chunk_end = min(i + 400, sentence_tokens['input_ids'].shape[1])  # Ensure last chunk is valid
+                chunk = {key: value[:, i:chunk_end] for key, value in sentence_tokens.items()}  # Slice all tensors
+                chunks.append(chunk)
+        else:
+            # No need to split if already within the limit
+            chunks.append(sentence_tokens)
+
+        output = []
+        for chunk in chunks:
+            output = model(**chunk)
         # result=output.last_hidden_state.detach().numpy()
-        result=output.last_hidden_state
-        for i in range(result.shape[1]):
-            list_of_embeddings=result[:, i].tolist()
-            result_list_of_lists.append(list_of_embeddings[0])
-        lenght=len(result_list_of_lists)
-        length0=len(result_list_of_lists[0])
-        globals.word_embeddings.append(result_list_of_lists)
+            result=output.last_hidden_state
+            for i in range(result.shape[1]):
+                # Vector Embedding of one word
+                word_embedding_vector=result[:, i].tolist()
+                sentence_word_embeddings.append(word_embedding_vector[0])
+
+        globals.word_embeddings.append(sentence_word_embeddings)
 
         token_ids = sentence_tokens['input_ids'][0].tolist()
         tokens = tokenizer.convert_ids_to_tokens(token_ids)
@@ -108,6 +127,10 @@ def word_tokenize():
         # Ensure all tokenized sentences have the same length by padding
         globals.tokenized_sentences.append(tokens) #List of Sentences of List of Word Tokens
         globals.word_vocabulary.update(tokens) #Set of vocabulary of word tokens
+        print("sentence Number:",count)
+        print("sentence Tokens Length:",len(tokens))
+        count+=1
+    
 
     # max_length = max(len(tokens) for tokens in globals.tokenized_sentences)
     # globals.padded_tokenized_sentences = [tokens + ['[PAD]'] * (max_length - len(tokens)) for tokens in globals.tokenized_sentences]
@@ -148,6 +171,8 @@ def letter_to_vector():
 def char_tokenize():
     for sentence in globals.tokenized_sentences:
         for word in sentence:
+            if word == '[CLS]' or word == '[SEP]':
+                continue
             for char in word:
                 globals.letters.add(char)   
 
@@ -158,14 +183,16 @@ def tokenize():
 
     # # //////////////////////////////////////STEP1: GETTING WORDS WITHOUT DIACRITICS//////////////////////////////////////////
     # list of list of elkalmat men 8ir tashkeel-> kol sentence, kol elklmat bt3tha
-    words_without_diacritics = get_words_without_diacritics(globals.clean_sentences)
-    # utils.saveToTextFile('output/words_without_diacritics.txt', words_without_diacritics)
-    utils.SaveToPickle('output/words_without_diacritics.pickle', words_without_diacritics)
-    globals.words_without_diacritics=utils.loadPickle('output/words_without_diacritics.pickle')
+    # words_without_diacritics = get_words_without_diacritics(globals.clean_sentences)
+    # # utils.saveToTextFile('output/words_without_diacritics.txt', words_without_diacritics)
+    # utils.SaveToPickle('output/words_without_diacritics.pickle', words_without_diacritics)
+    # globals.words_without_diacritics=utils.loadPickle('output/words_without_diacritics.pickle')
 
     # # //////////////////////////////////////STEP2: TOKENIZING WORDS AND UPDATING VOCABULARY //////////////////////////////////////////
     # # TODO: UNCOMMENT WHEN TESTING
     word_tokenize()
+
+    print("finished tokenizing words")
 
     # la8enaha men hayatnaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     # extract_word_embeddings()
@@ -174,10 +201,14 @@ def tokenize():
     # # TODO: UNCOMMENT WHEN TESTING   
     extract_golden_output()
 
+    print("finished extracting golden output")
+
     # # //////////////////////////////////////STEP4: Tokenizing Chars //////////////////////////////////////////
     
+    # char_tokenize()
     letter_to_vector()
-    char_tokenize()
+
+    print("finished tokenizing chars")
 
     # # //////////////////////////////////////STEP5: Assigning Vector to Char /////////////////////////////////////////
     assign_vector_to_char()
