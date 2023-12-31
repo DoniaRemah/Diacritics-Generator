@@ -1,10 +1,16 @@
 import models
 
-def create_model():
+def extract_and_create_model():
     models.load_data_for_extraction()
     print("MAIN - finished loading data for extraction")
     models.extract_char_embeddings_and_labels_align_labels()
     print("MAIN - finished extracting char embeddings and labels")
+    models.load_data_for_model_creation()
+    print("MAIN - finished loading data for model creation")
+    models.create_model()
+    print("MAIN - finished creating model")
+
+def create_model():
     models.load_data_for_model_creation()
     print("MAIN - finished loading data for model creation")
     models.create_model()
@@ -21,6 +27,7 @@ def train_model(model_name):
 
 def main():
     create_model()
+    # train_model("initial_model")
     print("MAIN - OVERRRRRR")
 
 

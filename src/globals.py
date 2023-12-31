@@ -36,3 +36,4 @@ our_model = None
 
 char_embeddings_numpy = None
 word_embeddings_numpy = None
+

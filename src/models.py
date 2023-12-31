@@ -1,9 +1,10 @@
 from keras.models import Model
-from keras.layers import LSTM, Input, concatenate,Bidirectional
+from keras.layers import LSTM, Input, concatenate,Bidirectional,Masking,Dense,Reshape
 import numpy as np
 from sklearn.svm import SVC
 import globals
 import utils
+import tensorflow as tf
 from keras.models import load_model
 import re
 def load_data_for_extraction():
@@ -21,19 +22,21 @@ def load_data_for_model_creation():
 
     globals.word_embeddings = utils.loadPickle('output/word_embeddings_0_2224.pickle')
     print("finished loading word embeddings")
-    # globals.model_char_embeddings = utils.loadPickle('output/model/model_char_embeddings.pickle')
+    globals.model_char_embeddings = utils.loadPickle('output/model/model_char_embeddings.pickle')
 
 
 def load_data_for_training():
-    globals.word_embeddings = utils.loadPickle('output/word_embeddings_0_2224.pickle')
-    print("finished loading word embeddings")
-    globals.model_char_embeddings = utils.loadPickle('output/model/model_char_embeddings.pickle')
-    print("finished loading model char embeddings")
+    # globals.word_embeddings = utils.loadPickle('output/word_embeddings_0_2224.pickle')
+    # print("finished loading word embeddings")
+    # globals.model_char_embeddings = utils.loadPickle('output/model/model_char_embeddings.pickle')
+    # print("finished loading model char embeddings")
+    globals.word_embeddings_numpy = utils.loadPickle('output/model/word_embeddings_numpy_0_2224.pickle')
+    globals.char_embeddings_numpy = utils.loadPickle('output/model/char_embeddings_numpy_0_2224.pickle')
     globals.model_labels = utils.loadPickle('output/model/model_labels.pickle')
     print("finished loading model labels")
 
 def load_saved_model(model_name):
-    name = "output/model/"+model_name
+    name = "models/"+model_name
     globals.our_model = load_model(name)
 
 def extract_char_embeddings_and_labels():
@@ -74,7 +77,7 @@ def extract_char_embeddings_and_labels():
 
 
 def extract_char_embeddings_and_labels_align_labels():
-    for sentece_index, sentence in enumerate(globals.golden_outputs_list):
+    for sentece_index, sentence in enumerate(globals.golden_outputs_list[0:2225]):
         chars_per_sentence_list = []
         chars_index_per_sentence_list = []
         labels_per_sentence_list = []
@@ -158,32 +161,88 @@ def extract_char_embeddings_and_labels_align_labels():
 
 
 def create_model():
-    globals.word_embeddings_numpy = np.array(globals.word_embeddings)
-    globals.char_embeddings_numpy = np.array(globals.model_char_embeddings)
+
+    # Determine the maximum sequence lengths for words and characters
+    max_sentence_length = max(len(seq) for seq in globals.word_embeddings) -2
+
+    max_word_length = max(max(len(word) for word in sentence) for sentence in globals.model_char_embeddings)
+
+        # Pad words to the maximum length
+    padded_word_embeddings = []
+    for sentence in globals.word_embeddings:
+        # remove the first and last token cls and sep
+        sentence = sentence[1:-1]
+        padded_sentence = np.pad(sentence, ((0, max_sentence_length - len(sentence)), (0, 0)), mode='constant')
+        padded_word_embeddings.append(padded_sentence)
+
+    # Define your padding vector
+    char_padding_vector = np.zeros((37,1))
+
+    padded_char_embeddings = []
+    for sentence in globals.model_char_embeddings:
+        new_sentence = []
+
+        for word in sentence:
+
+            # Pad the word to the max_word_length
+            word = word + [char_padding_vector] * (max_word_length - len(word))
+            new_sentence.append(word)
+        
+        empty_word = [char_padding_vector] * max_word_length
+        new_sentence = new_sentence + [empty_word] * (max_sentence_length - len(sentence))
+        padded_char_embeddings.append(new_sentence)
+
+
+    globals.word_embeddings_numpy = np.array(padded_word_embeddings)
+    globals.char_embeddings_numpy = np.array(padded_char_embeddings)
+
+    utils.SaveToPickle('output/model/word_embeddings_numpy_0_2224.pickle', globals.word_embeddings_numpy)
+    utils.SaveToPickle('output/model/char_embeddings_numpy_0_2224.pickle', globals.char_embeddings_numpy)
 
     # Shape information based on the precomputed embeddings
-    num_sentences, max_word_length, word_embedding_dim = globals.word_embeddings_numpy.shape
-    max_word_length, char_embedding_dim = globals.char_embeddings_numpy.shape[1:]
+    num_sentences, max_sentence_length, word_embedding_dim = globals.word_embeddings_numpy.shape
+    max_word_length, char_embedding_dim = globals.char_embeddings_numpy.shape[2:4]
 
     # LSTM units
     lstm_units = 64
 
     # Word LSTM model with return_sequences=True
-    word_input = Input(shape=(None, word_embedding_dim))
-    word_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True)(word_input))
+    word_input = Input(shape=(max_sentence_length,word_embedding_dim),batch_size=num_sentences)
+    word_input_masked = Masking(mask_value=0.0)(word_input)
+    word_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True))(word_input_masked)
 
     # Character LSTM model with input directly from word-level LSTM
-    char_input = Input(shape=(None, char_embedding_dim))
-    merged_input = concatenate([word_lstm, char_input])
-    char_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True)(merged_input))
+    char_input = Input(shape=(max_sentence_length,max_word_length ,char_embedding_dim),batch_size=num_sentences)
+    char_input_masked = Masking(mask_value=0.0)(char_input)
+    # # Reshape word_lstm to match the last dimension of char_input_masked
+    # word_lstm_reshaped = Reshape((max_sentence_length, lstm_units * 2, 1))(word_lstm)
+    # Extract the last time step of the output of the word_lstm
+    # Extract the last time step of the output of the word_lstm
 
-    # SVM classifier for each diacritic
+    # # Reshape char_input to match the last dimension of last_word_lstm_output
+    # char_input_reshaped = Reshape((max_sentence_length, max_word_length * char_embedding_dim))(char_input_masked)
+    word_lstm_expanded = tf.tile(tf.expand_dims(word_lstm, axis=-1), multiples=[1, 1, 1, 37])
+    # # Concatenate the last_word_lstm_output with char_input_reshaped
+    merged_input = concatenate([word_lstm_expanded, char_input_masked], axis=-2)
+
+    # tensor_shape = (64, 64)
+
+    # # Create a Keras tensor of zeros
+    # zeros_tensor = Input(shape=tensor_shape, dtype=tf.float32,batch_size=0)
+
+    # Bidirectional LSTM for character input without specifying initial_state
+    char_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True))(merged_input)
+    # # Concatenate along a new axis
+    # merged_input = concatenate([word_lstm_reshaped, char_input_masked], axis=-1)
+
+
+    # Linear classifiers for each diacritic
     num_diacritics = 15
-    svm_classifiers = [SVC(kernel='linear') for _ in range(num_diacritics)]
-    svm_outputs = [classifier(char_lstm) for classifier in svm_classifiers]
+    linear_classifiers = [Dense(1, activation='linear') for _ in range(num_diacritics)]
+    linear_outputs = [classifier(char_lstm) for classifier in linear_classifiers]
 
     # Create the model
-    combined_model = Model(inputs=[word_input, char_input], outputs=svm_outputs)
+    combined_model = Model(inputs=[word_input, char_input], outputs=linear_outputs)
 
     # Compile the model
     combined_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
@@ -195,13 +254,29 @@ def create_model():
 
 
 def training_model():
-    globals.word_embeddings_numpy = np.array(globals.word_embeddings)
-    globals.char_embeddings_numpy = np.array(globals.model_char_embeddings)
-    labels_numpy = np.array(globals.model_labels)
 
-    num_sentences, max_word_length, word_embedding_dim = globals.word_embeddings_numpy.shape
-    max_word_length, char_embedding_dim = globals.char_embeddings_numpy.shape[1:]
-    
+    # Define your padding vector
+    label_padding = -1
+
+
+    num_sentences, max_sentence_length, word_embedding_dim = globals.word_embeddings_numpy.shape
+    max_word_length, char_embedding_dim = globals.char_embeddings_numpy.shape[2:4]
+
+    padded_labels = []
+    for sentence in globals.model_labels:
+        new_sentence = []
+
+        for word in sentence:
+            # Pad the word to the max_word_length
+            word = word + [label_padding] * (max_word_length - len(word))
+            new_sentence.append(word)
+        
+        empty_word = [label_padding] * max_word_length
+        new_sentence = new_sentence + [empty_word] * (max_sentence_length - len(sentence))
+        padded_labels.append(new_sentence)
+
+    labels_numpy = np.array(padded_labels)
+
    
     epochs = 10
     # batch_size = 32
@@ -209,7 +284,6 @@ def training_model():
     for epoch_index in range(epochs):
         for i in range(num_sentences):
             current_word_data = globals.word_embeddings_numpy[i]
-            current_word_data = current_word_data[1:-2]
             current_char_data = globals.char_embeddings_numpy[i]
             labels = labels_numpy[i]
 
