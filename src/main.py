@@ -29,8 +29,8 @@ def main():
     read_data()
     # # pre.clean_data()
 
-    globals.tokenized_sentences = utils.loadPickle('output/tokenized_sentences_0_2224.pickle')
-    # utils.saveToTextFile('tokenized_sentences_0_2224.txt',globals.tokenized_sentences)
+    # globals.tokenized_sentences = utils.loadPickle('output/tokenized_sentences_0_2224.pickle')
+    # # utils.saveToTextFile('tokenized_sentences_0_2224.txt',globals.tokenized_sentences)
 
     pre.pre_processing()
 

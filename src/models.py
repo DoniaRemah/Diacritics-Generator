@@ -291,13 +291,13 @@ def training_model():
     
    # Define a callback to save the model weights after each epoch
     checkpoint_callback = ModelCheckpoint(
-        filepath='models/weights/0_2224/weights_epoch_{epoch:02d}.h5',  # Specify the filename format
+        filepath='models/weights/folder0_2224/weights_epoch_{epoch:02d}.h5',  # Specify the filename format
         save_weights_only=True,  # Save only the weights, not the entire model
         verbose=1  # Display progress
     )
 
-    epochs = 1
-    batch_size = 5
+    epochs = 10
+    batch_size = 89
     
     globals.our_model.fit([globals.word_embeddings_numpy,globals.char_embeddings_numpy ], labels_numpy, epochs=epochs, verbose=1,callbacks=[checkpoint_callback],batch_size=batch_size)
     # batch_size = 32   
