@@ -37,3 +37,5 @@ our_model = None
 char_embeddings_numpy = None
 word_embeddings_numpy = None
 
+padded_word_embeddings = []
+padded_char_embeddings = []
