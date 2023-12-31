@@ -223,15 +223,15 @@ def create_model():
     # char_input_reshaped = Reshape((max_sentence_length, max_word_length * char_embedding_dim))(char_input_masked)
     word_lstm_expanded = tf.tile(tf.expand_dims(word_lstm, axis=-1), multiples=[1, 1, 1, 37])
     # # Concatenate the last_word_lstm_output with char_input_reshaped
-    merged_input = concatenate([word_lstm_expanded, char_input_masked], axis=-2)
+    merged_input = concatenate([word_lstm_expanded, char_input], axis=2)
 
     # tensor_shape = (64, 64)
-
+    reshaped_input = tf.reshape(merged_input, (num_sentences, 380, -1))
     # # Create a Keras tensor of zeros
     # zeros_tensor = Input(shape=tensor_shape, dtype=tf.float32,batch_size=0)
 
     # Bidirectional LSTM for character input without specifying initial_state
-    char_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True))(merged_input)
+    char_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True))(reshaped_input)
     # # Concatenate along a new axis
     # merged_input = concatenate([word_lstm_reshaped, char_input_masked], axis=-1)
 
