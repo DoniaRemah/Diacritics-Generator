@@ -1,5 +1,6 @@
 from keras.models import Model
-from keras.layers import LSTM, Input, concatenate,Bidirectional,Masking,Dense,Reshape
+from keras.layers import LSTM, Input, concatenate,Bidirectional,Masking,Dense,Reshape,Lambda
+from keras import backend as K
 import numpy as np
 from sklearn.svm import SVC
 import globals
@@ -8,7 +9,7 @@ import tensorflow as tf
 from keras.models import load_model
 import re
 from keras.callbacks import ModelCheckpoint
-
+from keras import losses
 
 def load_data_for_extraction():
 
@@ -172,7 +173,7 @@ def create_model():
 
     max_word_length = max(max(len(word) for word in sentence) for sentence in globals.model_char_embeddings)
 
-        # Pad words to the maximum length
+    # Pad words to the maximum length
     padded_word_embeddings = []
     for sentence in globals.word_embeddings:
         # remove the first and last token cls and sep
@@ -214,12 +215,13 @@ def create_model():
     
 
     # Word LSTM model with return_sequences=True
-    word_input = Input(shape=(max_sentence_length,word_embedding_dim),batch_size=num_sentences)
+    word_input = Input(shape=(max_sentence_length,word_embedding_dim))
 
+    # Input shape: Batch size, timesteps, features
     word_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True))(word_input)
 
     # Character LSTM model with input directly from word-level LSTM
-    char_input = Input(shape=(max_sentence_length,max_word_length ,char_embedding_dim),batch_size=num_sentences)
+    char_input = Input(shape=(max_sentence_length,max_word_length ,char_embedding_dim))
 
     word_lstm_expanded = tf.tile(tf.expand_dims(word_lstm, axis=-1), multiples=[1, 1, 1, 37])
 
@@ -227,28 +229,32 @@ def create_model():
     merged_input = concatenate([word_lstm_expanded, char_input], axis=2)
 
    
-    reshaped_input = tf.reshape(merged_input, (num_sentences, 380, -1))
+    inferred_dimension = tf.reduce_prod(tf.shape(merged_input)[2:])  # Calculate the size of the third dimension
+    reshaped_input = tf.reshape(merged_input, (tf.shape(merged_input)[0], max_sentence_length, inferred_dimension))
 
-
+    # Input shape:Batch size, timesteps, features
     # Bidirectional LSTM for character input without specifying initial_state
     char_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True))(reshaped_input)
 
 
-    # Linear classifiers for each diacritic
     num_diacritics = 15
-    linear_classifiers = [Dense(1, activation='linear') for _ in range(num_diacritics)]
-    linear_outputs = [classifier(char_lstm) for classifier in linear_classifiers]
+    classifier_output = Dense(num_diacritics * max_word_length)(char_lstm)
+    classifier_output = Reshape((max_sentence_length, max_word_length, num_diacritics))(classifier_output)
 
-    # Create the model
-    combined_model = Model(inputs=[word_input, char_input], outputs=linear_outputs)
+    # # Add a Lambda layer to perform argmax along the last dimension
+    # classifier_argmax = Lambda(lambda x: K.argmax(x, axis=-1))(classifier_output)
+
+    # Create the model  
+    combined_model = Model(inputs=[word_input, char_input], outputs=classifier_output)
 
     # Compile the model
-    combined_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    combined_model.compile(optimizer='adam', loss = losses.SparseCategoricalCrossentropy(from_logits=True), metrics=[tf.keras.metrics.SparseCategoricalAccuracy()])
 
     # Display the model summary
     combined_model.summary()
     globals.our_model = combined_model
     utils.save_model('initial_model',combined_model)
+
 
 
 def training_model():
@@ -275,6 +281,14 @@ def training_model():
 
     labels_numpy = np.array(padded_labels)
 
+
+    # Mask the padded labels
+    labels_mask = (labels_numpy != label_padding)
+
+    # Apply the mask to the labels
+    labels_numpy = np.multiply(labels_numpy, labels_mask)
+    labels_numpy = tf.cast(labels_numpy, 'int64')
+    
    # Define a callback to save the model weights after each epoch
     checkpoint_callback = ModelCheckpoint(
         filepath='models/weights/0_2224/weights_epoch_{epoch:02d}.h5',  # Specify the filename format
@@ -282,9 +296,11 @@ def training_model():
         verbose=1  # Display progress
     )
 
-    epochs = 10
-    globals.our_model.fit([globals.word_embeddings_numpy,globals.char_embeddings_numpy ], labels_numpy, epochs=epochs, verbose=1,callbacks=[checkpoint_callback])
-    # batch_size = 32
+    epochs = 1
+    batch_size = 5
+    
+    globals.our_model.fit([globals.word_embeddings_numpy,globals.char_embeddings_numpy ], labels_numpy, epochs=epochs, verbose=1,callbacks=[checkpoint_callback],batch_size=batch_size)
+    # batch_size = 32   
 
     # # Train the model try fit
     # for epoch_index in range(epochs):

@@ -1,4 +1,8 @@
 import models
+import tensorflow as tf
+import os 
+
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1' # Disable GPU
 
 def extract_and_create_model():
     models.load_data_for_extraction()
@@ -25,6 +29,16 @@ def train_model(model_name,weights_name=""):
     models.training_model()
     print("MAIN - finished training model")
 
+def test_memory():
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+
+    # Check if GPUs are available
+    if gpus:
+        try:
+            # Set memory growth for the first GPU
+            tf.config.experimental.set_memory_growth(gpus[0], True)
+        except RuntimeError as e:
+            print(e)
 
 def main():
     # create_model()
