@@ -16,7 +16,8 @@ def create_model():
     models.create_model()
     print("MAIN - finished creating model")
 
-def train_model(model_name):
+def train_model(model_name,weights_name=""):
+    # 0_2224/weights_epoch_09.h5 -> pass this
     models.load_saved_model(model_name)
     print("MAIN - finished loading model")
     models.load_data_for_training()
@@ -26,8 +27,8 @@ def train_model(model_name):
 
 
 def main():
-    create_model()
-    # train_model("initial_model")
+    # create_model()
+    train_model("initial_model")
     print("MAIN - OVERRRRRR")
 
 

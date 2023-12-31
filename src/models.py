@@ -7,6 +7,9 @@ import utils
 import tensorflow as tf
 from keras.models import load_model
 import re
+from keras.callbacks import ModelCheckpoint
+
+
 def load_data_for_extraction():
 
     globals.char_embeddings = utils.loadPickle('output/char_embeddings_0_2224.pickle')
@@ -35,9 +38,11 @@ def load_data_for_training():
     globals.model_labels = utils.loadPickle('output/model/model_labels.pickle')
     print("finished loading model labels")
 
-def load_saved_model(model_name):
+def load_saved_model(model_name,weight_name=""):
     name = "models/"+model_name
     globals.our_model = load_model(name)
+    # name = "models/weights/"+weight_name
+    # globals.our_model.load_weights(name)
 
 def extract_char_embeddings_and_labels():
     for sentece_index, sentence in enumerate(globals.tokenized_sentences):
@@ -206,34 +211,27 @@ def create_model():
     # LSTM units
     lstm_units = 64
 
+    
+
     # Word LSTM model with return_sequences=True
     word_input = Input(shape=(max_sentence_length,word_embedding_dim),batch_size=num_sentences)
-    word_input_masked = Masking(mask_value=0.0)(word_input)
-    word_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True))(word_input_masked)
+
+    word_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True))(word_input)
 
     # Character LSTM model with input directly from word-level LSTM
     char_input = Input(shape=(max_sentence_length,max_word_length ,char_embedding_dim),batch_size=num_sentences)
-    char_input_masked = Masking(mask_value=0.0)(char_input)
-    # # Reshape word_lstm to match the last dimension of char_input_masked
-    # word_lstm_reshaped = Reshape((max_sentence_length, lstm_units * 2, 1))(word_lstm)
-    # Extract the last time step of the output of the word_lstm
-    # Extract the last time step of the output of the word_lstm
 
-    # # Reshape char_input to match the last dimension of last_word_lstm_output
-    # char_input_reshaped = Reshape((max_sentence_length, max_word_length * char_embedding_dim))(char_input_masked)
     word_lstm_expanded = tf.tile(tf.expand_dims(word_lstm, axis=-1), multiples=[1, 1, 1, 37])
-    # # Concatenate the last_word_lstm_output with char_input_reshaped
+
+    # Concatenate the last_word_lstm_output with char_input_reshaped
     merged_input = concatenate([word_lstm_expanded, char_input], axis=2)
 
-    # tensor_shape = (64, 64)
+   
     reshaped_input = tf.reshape(merged_input, (num_sentences, 380, -1))
-    # # Create a Keras tensor of zeros
-    # zeros_tensor = Input(shape=tensor_shape, dtype=tf.float32,batch_size=0)
+
 
     # Bidirectional LSTM for character input without specifying initial_state
     char_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True))(reshaped_input)
-    # # Concatenate along a new axis
-    # merged_input = concatenate([word_lstm_reshaped, char_input_masked], axis=-1)
 
 
     # Linear classifiers for each diacritic
@@ -277,25 +275,32 @@ def training_model():
 
     labels_numpy = np.array(padded_labels)
 
-   
+   # Define a callback to save the model weights after each epoch
+    checkpoint_callback = ModelCheckpoint(
+        filepath='models/weights/0_2224/weights_epoch_{epoch:02d}.h5',  # Specify the filename format
+        save_weights_only=True,  # Save only the weights, not the entire model
+        verbose=1  # Display progress
+    )
+
     epochs = 10
+    globals.our_model.fit([globals.word_embeddings_numpy,globals.char_embeddings_numpy ], labels_numpy, epochs=epochs, verbose=1,callbacks=[checkpoint_callback])
     # batch_size = 32
 
-    for epoch_index in range(epochs):
-        for i in range(num_sentences):
-            current_word_data = globals.word_embeddings_numpy[i]
-            current_char_data = globals.char_embeddings_numpy[i]
-            labels = labels_numpy[i]
+    # # Train the model try fit
+    # for epoch_index in range(epochs):
+    #     for i in range(num_sentences):
+    #         current_word_data = globals.word_embeddings_numpy[i]
+    #         current_char_data = globals.char_embeddings_numpy[i]
+    #         labels = labels_numpy[i]
 
-            # Forward pass for the entire sentence
-            globals.our_model.train_on_batch([current_word_data, current_char_data], labels)
-            print("TRAINING - Finished sentence number ", i)
-        folder_name='models/epoch_'+str(epoch_index)
+    #         # Forward pass for the entire sentence
+    #         globals.our_model.train_on_batch([current_word_data, current_char_data], labels)
+    #         print("TRAINING - Finished sentence number ", i)
+    #     folder_name='models/epoch_'+str(epoch_index)
 
-        print("TRAINING - Finished epoch number ", epoch_index)
+    #     print("TRAINING - Finished epoch number ", epoch_index)
 
-        # After the training loop, you can save or evaluate your models as needed
-        utils.save_model(folder_name,globals.our_model)
+    #     # After the training loop, you can save or evaluate your models as needed
     
 
 
