@@ -2,7 +2,7 @@ import models
 import tensorflow as tf
 import os 
 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '-1' # Disable GPU
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1' # Disable GPU
 
 def extract_and_create_model():
     models.load_data_for_extraction()
@@ -41,6 +41,7 @@ def test_memory():
             print(e)
 
 def main():
+    # extract_and_create_model()
     # create_model()
     train_model("initial_model")
     print("MAIN - OVERRRRRR")
