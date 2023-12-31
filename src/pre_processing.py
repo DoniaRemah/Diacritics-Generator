@@ -46,7 +46,7 @@ def word_tokenize():
     count =0
     
     #loop over the cleaned sentences and tokenize them
-    for sentence in globals.clean_sentences[0:5001]:
+    for sentence in globals.clean_sentences[20000:25000]:
         sentence_word_embeddings=[]
         
         chunks =[]
@@ -85,9 +85,9 @@ def word_tokenize():
         count+=1
     
     #####################################Save outputs to file#################################################
-    utils.SaveToPickle('output/vocab_0_5000.pickle', globals.word_vocabulary)
-    utils.SaveToPickle('output/tokenized_sentences_0_5000_withoutHamza.pickle', globals.tokenized_sentences)
-    utils.SaveToPickle('output/word_embeddings_0_5000.pickle', globals.word_embeddings)
+    utils.SaveToPickle('output/vocab_20000_25000.pickle', globals.word_vocabulary)
+    utils.SaveToPickle('output/tokenized_sentences_20000_25000_withoutHamza.pickle', globals.tokenized_sentences)
+    utils.SaveToPickle('output/word_embeddings_20000_25000.pickle', globals.word_embeddings)
             
 
 def extract_golden_output():
@@ -142,7 +142,7 @@ def get_words_without_diacritics(sentences):
 
 def sub_tokenized_letters():
 
-    words_without_diac = get_words_without_diacritics(globals.clean_sentences[0:5001])
+    words_without_diac = get_words_without_diacritics(globals.clean_sentences[20000:25000])
 
     for sent_index,sentence in enumerate(words_without_diac):
         current_tokenized_word_index = 0
@@ -186,7 +186,7 @@ def sub_tokenized_letters():
                     processed_chars += 1
 
             current_tokenized_word_index += 1
-    utils.SaveToPickle('output/tokenized_sentences_0_5000_withHamza.pickle',globals.tokenized_sentences)                
+    utils.SaveToPickle('output/tokenized_sentences_20000_25000_withHamza.pickle',globals.tokenized_sentences)                
 
 
 
@@ -213,7 +213,7 @@ def assign_vector_to_char():
             sentence_vector_char.append(word_tuple)
         globals.char_embeddings.append(sentence_vector_char)
     
-    utils.SaveToPickle('output/char_embeddings_0_5000.pickle', globals.char_embeddings)
+    utils.SaveToPickle('output/char_embeddings_20000_25000.pickle', globals.char_embeddings)
 
 
 def get_char_embeddings():
@@ -233,7 +233,7 @@ def tokenize():
 
 
     # # //////////////////////////////////////Extracting Golden Output //////////////////////////////////////////
-    extract_golden_output()
+    # extract_golden_output()
 
     # print("finished extracting golden output")
 
