@@ -129,7 +129,7 @@ def extract_char_embeddings_and_labels_align_labels():
                     continue
                 
                 if current_tokenized_word[current_tokenized_char_index] == '#':
-                    char_index_in_corpus,char_vector = globals.char_embeddings[sentece_index][current_tokenized_word_index][current_tokenized_char_index]
+                    char_index_in_corpus,char_vector = globals.char_embeddings[sentece_index][current_tokenized_word_index][1][current_tokenized_char_index]
                     chars_per_word_list.append(char_vector)
                     chars_index_per_word_list.append(char_index_in_corpus)
                     labels_per_word_list.append(14)
