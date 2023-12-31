@@ -214,12 +214,12 @@ def create_model():
     
 
     # Word LSTM model with return_sequences=True
-    word_input = Input(shape=(max_sentence_length,word_embedding_dim))
+    word_input = Input(shape=(max_sentence_length,word_embedding_dim),batch_size=num_sentences)
 
     word_lstm = Bidirectional(LSTM(lstm_units, return_sequences=True))(word_input)
 
     # Character LSTM model with input directly from word-level LSTM
-    char_input = Input(shape=(max_sentence_length,max_word_length ,char_embedding_dim))
+    char_input = Input(shape=(max_sentence_length,max_word_length ,char_embedding_dim),batch_size=num_sentences)
 
     word_lstm_expanded = tf.tile(tf.expand_dims(word_lstm, axis=-1), multiples=[1, 1, 1, 37])
 
@@ -227,7 +227,7 @@ def create_model():
     merged_input = concatenate([word_lstm_expanded, char_input], axis=2)
 
    
-    reshaped_input = tf.reshape(merged_input, (None, 380, -1))
+    reshaped_input = tf.reshape(merged_input, (num_sentences, 380, -1))
 
 
     # Bidirectional LSTM for character input without specifying initial_state
