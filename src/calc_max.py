@@ -3,8 +3,8 @@ import globals
 import models_prediction
 
 # load the data 
-globals.word_embeddings=utils.loadPickle('output/word_embeddings_20000_25000.pickle')
-globals.char_embeddings=utils.loadPickle('output/char_embeddings_20000_25000.pickle')
+globals.word_embeddings=utils.loadPickle('output/word_embeddings_45000_50000.pickle')
+globals.char_embeddings=utils.loadPickle('output/char_embeddings_45000_50000.pickle')
 
 models_prediction.extract_chars()
 max_sentence_length = max(len(seq) for seq in globals.word_embeddings) -2
@@ -27,4 +27,21 @@ print("max word length is: ", max_word_length)
 # max word length is:  11
 
 # max sentence length is:  323
+# max word length is:  10
+
+
+# rana
+# max sentence length is:  437
+# max word length is:  11
+
+# max sentence length is:  436
+# max word length is:  10
+
+# max sentence length is:  560
+# max word length is:  11
+
+#max sentence length is:  930
+# max word length is:  11
+
+# max sentence length is:  561
 # max word length is:  10
