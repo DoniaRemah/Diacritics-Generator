@@ -36,8 +36,7 @@ def extract_chars():
 
 def pad_word_embeddings():
 
-    #TODO: CHANGE THIS
-    max_sentence_length=380
+    max_sentence_length=400
     # Pad words to the maximum length
     padded_word_embeddings = []
     for sentence in globals.word_embeddings:
@@ -54,9 +53,9 @@ def pad_char_embeddings():
     # Define your padding vector
     char_padding_vector = np.zeros((37,1))
 
-    #TODO: CHANGE THIS
-    max_sentence_length=380
-    max_word_length=25
+    max_sentence_length=400
+   
+    max_word_length=15
 
     padded_char_embeddings = []
     for sentence in globals.model_char_embeddings:

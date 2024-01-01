@@ -40,10 +40,15 @@ def test_memory():
         except RuntimeError as e:
             print(e)
 
+def test():
+    models.load_data_for_model_creation()
+    models.chunk_data()
+
 def main():
+    test()
     # extract_and_create_model()
     # create_model()
-    train_model("initial_model")
+    # train_model("initial_model")
     print("MAIN - OVERRRRRR")
 
 

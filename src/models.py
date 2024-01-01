@@ -163,21 +163,59 @@ def extract_char_embeddings_and_labels_align_labels():
     utils.SaveToPickle('output/model/model_labels.pickle', globals.model_labels)
 
 
+def chunk_data():
+    # Chunk word_embeddings and model_labels and model_char_embeddings, where each chunk has max size 400
 
+    # Chunk word_embeddings
+    chunked_word_embeddings = []
+    chunked_model_labels = []   
+    chunked_model_char_embeddings = []
+
+    # Chunking Sentences
+    for sentence in globals.word_embeddings:
+        # remove the first and last token cls and sep
+        sentence = sentence[1:-1]
+        if len(sentence) > 400:
+            for i in range(0, len(sentence), 400):
+                chunk_end = min(i + 400, len(sentence))
+                chunked_word_embeddings.append(sentence[i:chunk_end])
+        else:
+            chunked_word_embeddings.append(sentence)
+
+    # Chunking Labels
+    for sentence in globals.model_labels:
+        if len(sentence) > 400:
+            for i in range(0, len(sentence), 400):
+                chunk_end = min(i + 400, len(sentence))
+                chunked_model_labels.append(sentence[i:chunk_end])
+        else:
+            chunked_model_labels.append(sentence)
+
+    # Chunking Char Embeddings
+    for sentence in globals.model_char_embeddings:
+        if len(sentence) > 400:
+            for i in range(0, len(sentence), 400):
+                chunk_end = min(i + 400, len(sentence))
+                chunked_model_char_embeddings.append(sentence[i:chunk_end])
+        else:
+            chunked_model_char_embeddings.append(sentence)
+
+    globals.chunked_word_embeddings = chunked_word_embeddings
+    globals.chunked_labels = chunked_model_labels
+    globals.chunked_char_embeddings = chunked_model_char_embeddings
 
 
 def create_model():
 
     # Determine the maximum sequence lengths for words and characters
-    max_sentence_length = max(len(seq) for seq in globals.word_embeddings) -2
+    max_sentence_length = 400
 
-    max_word_length = max(max(len(word) for word in sentence) for sentence in globals.model_char_embeddings)
+    max_word_length = 15
 
     # Pad words to the maximum length
     padded_word_embeddings = []
     for sentence in globals.word_embeddings:
         # remove the first and last token cls and sep
-        sentence = sentence[1:-1]
         padded_sentence = np.pad(sentence, ((0, max_sentence_length - len(sentence)), (0, 0)), mode='constant')
         padded_word_embeddings.append(padded_sentence)
 

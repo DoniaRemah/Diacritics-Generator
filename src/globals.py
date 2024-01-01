@@ -39,3 +39,7 @@ word_embeddings_numpy = None
 
 padded_word_embeddings = []
 padded_char_embeddings = []
+
+chunked_word_embeddings = []
+chunked_char_embeddings=[]
+chunked_labels = []
