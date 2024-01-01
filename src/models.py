@@ -13,20 +13,20 @@ from keras import losses
 
 def load_data_for_extraction():
 
-    globals.char_embeddings = utils.loadPickle('output/char_embeddings_5000_10000.pickle')
+    globals.char_embeddings = utils.loadPickle('output/char_embeddings_15000_20000.pickle')
     print("finished loading char embeddings")
     globals.golden_outputs_list = utils.loadPickle('output/golden_outputs.pickle')
     print("finished loading golden outputs")
-    globals.tokenized_sentences = utils.loadPickle('output/tokenized_sentences_5000_10000_withHamza.pickle')
+    globals.tokenized_sentences = utils.loadPickle('output/tokenized_sentences_15000_20000_withHamza.pickle')
     print("finished loading tokenized sentences")
 
 
 
 def load_data_for_model_creation():
 
-    globals.word_embeddings = utils.loadPickle('output/word_embeddings_5000_10000.pickle')
+    globals.word_embeddings = utils.loadPickle('output/word_embeddings_15000_20000.pickle')
     print("finished loading word embeddings")
-    globals.model_char_embeddings = utils.loadPickle('output/model/model_char_embeddings_5000_10000.pickle')
+    globals.model_char_embeddings = utils.loadPickle('output/model/model_char_embeddings_15000_20000.pickle')
 
 def load_data_for_training():
     # globals.word_embeddings = utils.loadPickle('output/word_embeddings_0_2224.pickle')
@@ -41,7 +41,7 @@ def load_data_for_training():
 def load_saved_model(model_name,weight_name=""):
     name = "models/"+model_name
     globals.our_model = load_model(name)
-    name = "models/weights/folder_5000_10000/"+weight_name
+    name = "models/weights/folder_15000_20000/"+weight_name
     globals.our_model.load_weights(name)
 
 def extract_char_embeddings_and_labels():
@@ -82,7 +82,7 @@ def extract_char_embeddings_and_labels():
 
 
 def extract_char_embeddings_and_labels_align_labels():
-    for sentece_index, sentence in enumerate(globals.golden_outputs_list[5000:10000]):
+    for sentece_index, sentence in enumerate(globals.golden_outputs_list[15000:20000]):
         chars_per_sentence_list = []
         chars_index_per_sentence_list = []
         labels_per_sentence_list = []
@@ -157,9 +157,9 @@ def extract_char_embeddings_and_labels_align_labels():
         globals.model_labels.append(labels_per_sentence_list)
         print("EXTRACTION - Finished sentence number ", sentece_index)
 
-    utils.SaveToPickle('output/model/model_char_embeddings_5000_10000.pickle', globals.model_char_embeddings)
-    utils.SaveToPickle('output/model/model_chars_index_per_corpus_5000_10000.pickle', globals.model_chars_index_per_corpus)
-    utils.SaveToPickle('output/model/model_labels_5000_10000.pickle', globals.model_labels)
+    utils.SaveToPickle('output/model/model_char_embeddings_15000_20000.pickle', globals.model_char_embeddings)
+    utils.SaveToPickle('output/model/model_chars_index_per_corpus_15000_20000.pickle', globals.model_chars_index_per_corpus)
+    utils.SaveToPickle('output/model/model_labels_15000_20000.pickle', globals.model_labels)
 
 
 def chunk_data():
@@ -207,7 +207,7 @@ def chunk_data():
 
     globals.chunked_word_embeddings = chunked_word_embeddings
     globals.chunked_labels = chunked_model_labels
-    utils.SaveToPickle('output/model/chunked_labels_5000_10000.pickle',globals.chunked_labels)
+    utils.SaveToPickle('output/model/chunked_labels_15000_20000.pickle',globals.chunked_labels)
     globals.chunked_char_embeddings = chunked_model_char_embeddings
 
 
@@ -221,7 +221,7 @@ def pad_word_embeddings():
         padded_word_embeddings.append(padded_sentence)
 
     globals.padded_word_embeddings = padded_word_embeddings
-    utils.SaveToPickle('output/model/padded_word_embeddings_5000_10000.pickle',globals.padded_word_embeddings)
+    utils.SaveToPickle('output/model/padded_word_embeddings_15000_20000.pickle',globals.padded_word_embeddings)
 
 def pad_char_embeddings():
 
@@ -246,12 +246,12 @@ def pad_char_embeddings():
         padded_char_embeddings.append(new_sentence)
 
     globals.padded_char_embeddings = padded_char_embeddings
-    utils.SaveToPickle('output/model/padded_char_embeddings_5000_10000.pickle',globals.padded_char_embeddings)
+    utils.SaveToPickle('output/model/padded_char_embeddings_15000_20000.pickle',globals.padded_char_embeddings)
 
 def prepare_data():
     load_data_for_model_creation()
     print("finished loading data for model creation")
-    globals.model_labels=utils.loadPickle('output/model/model_labels_5000_10000.pickle')
+    globals.model_labels=utils.loadPickle('output/model/model_labels_15000_20000.pickle')
     chunk_data()
     print("finished chunking data")
     pad_word_embeddings()
@@ -260,9 +260,9 @@ def prepare_data():
     print("finished padding char embeddings")
 
 def load_padded_data():
-    globals.padded_word_embeddings=utils.loadPickle('output/model/padded_word_embeddings_5000_10000.pickle')
-    globals.padded_char_embeddings=utils.loadPickle('output/model/padded_char_embeddings_5000_10000.pickle')
-    globals.model_labels=utils.loadPickle('output/model/chunked_labels_5000_10000.pickle')
+    globals.padded_word_embeddings=utils.loadPickle('output/model/padded_word_embeddings_15000_20000.pickle')
+    globals.padded_char_embeddings=utils.loadPickle('output/model/padded_char_embeddings_15000_20000.pickle')
+    globals.model_labels=utils.loadPickle('output/model/chunked_labels_15000_20000.pickle')
 
     globals.word_embeddings_numpy = np.array(globals.padded_word_embeddings)
     globals.char_embeddings_numpy = np.array(globals.padded_char_embeddings)
@@ -362,7 +362,7 @@ def training_model():
     
    # Define a callback to save the model weights after each epoch
     checkpoint_callback = ModelCheckpoint(
-        filepath='models/weights/folder_5000_10000/weights_epoch_{epoch:02d}.h5',  # Specify the filename format
+        filepath='models/weights/folder_15000_20000/weights_epoch_{epoch:02d}.h5',  # Specify the filename format
         save_weights_only=True,  # Save only the weights, not the entire model
         verbose=1  # Display progress
     )
@@ -370,9 +370,11 @@ def training_model():
     epochs = 1
     batch_size = 50
 
-    for i in range(0, len(globals.word_embeddings_numpy), 2500):
+    for i in range(2500, len(globals.word_embeddings_numpy), 2500):
         batch_end = min(i + 2500, len(globals.word_embeddings_numpy))
         globals.our_model.fit([globals.word_embeddings_numpy[i:batch_end],globals.char_embeddings_numpy[i:batch_end] ], labels_numpy[i:batch_end], epochs=epochs, verbose=1,callbacks=[checkpoint_callback],batch_size=batch_size,sample_weight=labels_mask[i:batch_end])
+        # name = "models/weights/folder_15000_20000/weights_epoch_01.h5"
+        # globals.our_model.load_weights(name)
         print("TRAINING - Finished batch number ", i)
     
 
