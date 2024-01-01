@@ -10,8 +10,8 @@ tokenizer = AutoTokenizer.from_pretrained('asafaya/bert-base-arabic')
 model= AutoModel.from_pretrained('asafaya/bert-base-arabic')
 
 def clean_data():
-    # text = globals.unclean_sentences
-    text = globals.test_sentences
+    text = globals.unclean_sentences
+    # text = globals.test_sentences
     clean_sentences =[]
     for sentence in text:
         
@@ -32,7 +32,10 @@ def clean_data():
     # with open('output/cleaned_train.txt', 'w',encoding='utf-8') as cleaned_train_file:
     #     for sentence in globals.clean_sentences:
     #         cleaned_train_file.write(sentence)
-    with open('output/cleaned_val.txt', 'w',encoding='utf-8') as cleaned_train_file:
+    # with open('output/cleaned_val.txt', 'w',encoding='utf-8') as cleaned_train_file:
+    #     for sentence in globals.clean_sentences:
+    #         cleaned_train_file.write(sentence)
+    with open('output/competition/cleaned_test.txt', 'w',encoding='utf-8') as cleaned_train_file:
         for sentence in globals.clean_sentences:
             cleaned_train_file.write(sentence)
 
@@ -92,9 +95,9 @@ def word_tokenize():
     # utils.SaveToPickle('output/vocab_20000_25000.pickle', globals.word_vocabulary)
     # utils.SaveToPickle('output/tokenized_sentences_20000_25000_withoutHamza.pickle', globals.tokenized_sentences)
     # utils.SaveToPickle('output/word_embeddings_20000_25000.pickle', globals.word_embeddings)
-    utils.SaveToPickle('output/vocab_val.pickle', globals.word_vocabulary)
-    utils.SaveToPickle('output/tokenized_sentences_val_withoutHamza.pickle', globals.tokenized_sentences)
-    utils.SaveToPickle('output/word_embeddings_val.pickle', globals.word_embeddings)
+    utils.SaveToPickle('output/competition/vocab_test.pickle', globals.word_vocabulary)
+    utils.SaveToPickle('output/competition/tokenized_sentences_test_withoutHamza.pickle', globals.tokenized_sentences)
+    utils.SaveToPickle('output/competition/word_embeddings_test.pickle', globals.word_embeddings)
 
 
 def extract_golden_output():
@@ -193,7 +196,7 @@ def sub_tokenized_letters():
                     processed_chars += 1
 
             current_tokenized_word_index += 1
-    utils.SaveToPickle('output/tokenized_sentences_val_withHamza.pickle',globals.tokenized_sentences)                
+    utils.SaveToPickle('output/competition/tokenized_sentences_test_withHamza.pickle',globals.tokenized_sentences)                
 
 
 
@@ -220,7 +223,7 @@ def assign_vector_to_char():
             sentence_vector_char.append(word_tuple)
         globals.char_embeddings.append(sentence_vector_char)
     
-    utils.SaveToPickle('output/char_embeddings_val.pickle', globals.char_embeddings)
+    utils.SaveToPickle('output/competition/char_embeddings_test.pickle', globals.char_embeddings)
 
 
 def get_char_embeddings():
@@ -241,9 +244,9 @@ def tokenize():
 
     # # //////////////////////////////////////Extracting Golden Output //////////////////////////////////////////
     # not in test
-    extract_golden_output() 
+    # extract_golden_output() 
 
-    print("finished extracting golden output")
+    # print("finished extracting golden output")
 
     # # # //////////////////////////////////////One hot vector for every char in vocab //////////////////////////////////////////
     
