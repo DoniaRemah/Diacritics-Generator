@@ -1,5 +1,6 @@
 import utils
 import numpy as np
+import globals
 
 def load_data_for_prediction():
 
@@ -14,7 +15,8 @@ def extract_chars():
     for sentence in globals.char_embeddings:
         words_per_sentence = []
         chars_index_per_sentence=[]
-        for word in sentence:
+        for word in sentence[1:-1]:
+            
             chars_vectors_per_word = []
             chars_index_per_word = []
             chars_tuple_list = word[1]
@@ -62,6 +64,7 @@ def pad_char_embeddings():
         new_sentence = []
 
         for word in sentence:
+
 
             # Pad the word to the max_word_length
             word = word + [char_padding_vector] * (max_word_length - len(word))
