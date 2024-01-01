@@ -41,7 +41,7 @@ def load_data_for_training():
 def load_saved_model(model_name,weight_name=""):
     name = "models/"+model_name
     globals.our_model = load_model(name)
-    name = "models/weights/folder_0_5000/"+weight_name
+    name = "models/weights/folder_5000_10000/"+weight_name
     globals.our_model.load_weights(name)
 
 def extract_char_embeddings_and_labels():
