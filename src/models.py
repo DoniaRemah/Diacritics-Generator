@@ -13,21 +13,20 @@ from keras import losses
 
 def load_data_for_extraction():
 
-    globals.char_embeddings = utils.loadPickle('output/char_embeddings_0_2224.pickle')
+    globals.char_embeddings = utils.loadPickle('output/char_embeddings_0_5000.pickle')
     print("finished loading char embeddings")
     globals.golden_outputs_list = utils.loadPickle('output/golden_outputs.pickle')
     print("finished loading golden outputs")
-    globals.tokenized_sentences = utils.loadPickle('output/tokenized_sentences_0_2224.pickle')
+    globals.tokenized_sentences = utils.loadPickle('output/tokenized_sentences_0_5000_withHamza.pickle')
     print("finished loading tokenized sentences")
 
 
 
 def load_data_for_model_creation():
 
-    globals.word_embeddings = utils.loadPickle('output/word_embeddings_0_2224.pickle')
+    globals.word_embeddings = utils.loadPickle('output/word_embeddings_0_5000.pickle')
     print("finished loading word embeddings")
-    globals.model_char_embeddings = utils.loadPickle('output/model/model_char_embeddings.pickle')
-
+    globals.model_char_embeddings = utils.loadPickle('output/model/model_char_embeddings_0_5000.pickle')
 
 def load_data_for_training():
     # globals.word_embeddings = utils.loadPickle('output/word_embeddings_0_2224.pickle')
@@ -83,7 +82,7 @@ def extract_char_embeddings_and_labels():
 
 
 def extract_char_embeddings_and_labels_align_labels():
-    for sentece_index, sentence in enumerate(globals.golden_outputs_list[0:2225]):
+    for sentece_index, sentence in enumerate(globals.golden_outputs_list[0:5000]):
         chars_per_sentence_list = []
         chars_index_per_sentence_list = []
         labels_per_sentence_list = []
@@ -158,9 +157,9 @@ def extract_char_embeddings_and_labels_align_labels():
         globals.model_labels.append(labels_per_sentence_list)
         print("EXTRACTION - Finished sentence number ", sentece_index)
 
-    utils.SaveToPickle('output/model/model_char_embeddings.pickle', globals.model_char_embeddings)
-    utils.SaveToPickle('output/model/model_chars_index_per_corpus.pickle', globals.model_chars_index_per_corpus)
-    utils.SaveToPickle('output/model/model_labels.pickle', globals.model_labels)
+    utils.SaveToPickle('output/model/model_char_embeddings_0_5000.pickle', globals.model_char_embeddings)
+    utils.SaveToPickle('output/model/model_chars_index_per_corpus_0_5000.pickle', globals.model_chars_index_per_corpus)
+    utils.SaveToPickle('output/model/model_labels_0_5000.pickle', globals.model_labels)
 
 
 def chunk_data():
@@ -202,32 +201,36 @@ def chunk_data():
 
     globals.chunked_word_embeddings = chunked_word_embeddings
     globals.chunked_labels = chunked_model_labels
+    utils.SaveToPickle('output/model/chunked_labels_0_5000.pickle',globals.chunked_labels)
     globals.chunked_char_embeddings = chunked_model_char_embeddings
 
 
-def create_model():
+def pad_word_embeddings():
 
-    # Determine the maximum sequence lengths for words and characters
-    max_sentence_length = 400
-
-    max_word_length = 15
-
+    max_sentence_length=400
     # Pad words to the maximum length
     padded_word_embeddings = []
-    for sentence in globals.word_embeddings:
-        # remove the first and last token cls and sep
+    for sentence in globals.chunked_word_embeddings:
         padded_sentence = np.pad(sentence, ((0, max_sentence_length - len(sentence)), (0, 0)), mode='constant')
         padded_word_embeddings.append(padded_sentence)
+
+    globals.padded_word_embeddings = padded_word_embeddings
+    utils.SaveToPickle('output/model/padded_word_embeddings_0_5000.pickle',globals.padded_word_embeddings)
+
+def pad_char_embeddings():
 
     # Define your padding vector
     char_padding_vector = np.zeros((37,1))
 
+    max_sentence_length=400
+   
+    max_word_length=15
+
     padded_char_embeddings = []
-    for sentence in globals.model_char_embeddings:
+    for sentence in globals.chunked_char_embeddings:
         new_sentence = []
 
         for word in sentence:
-
             # Pad the word to the max_word_length
             word = word + [char_padding_vector] * (max_word_length - len(word))
             new_sentence.append(word)
@@ -236,21 +239,35 @@ def create_model():
         new_sentence = new_sentence + [empty_word] * (max_sentence_length - len(sentence))
         padded_char_embeddings.append(new_sentence)
 
+    globals.padded_char_embeddings = padded_char_embeddings
+    utils.SaveToPickle('output/model/padded_char_embeddings_0_5000.pickle',globals.padded_char_embeddings)
 
-    globals.word_embeddings_numpy = np.array(padded_word_embeddings)
-    globals.char_embeddings_numpy = np.array(padded_char_embeddings)
+def prepare_data():
+    load_data_for_model_creation()
+    globals.model_labels=utils.loadPickle('output/model/model_labels_0_5000.pickle')
+    chunk_data()
+    pad_word_embeddings()
+    pad_char_embeddings()
 
-    utils.SaveToPickle('output/model/word_embeddings_numpy_0_2224.pickle', globals.word_embeddings_numpy)
-    utils.SaveToPickle('output/model/char_embeddings_numpy_0_2224.pickle', globals.char_embeddings_numpy)
+def load_padded_data():
+    globals.padded_word_embeddings=utils.loadPickle('output/model/padded_word_embeddings_0_5000.pickle')
+    globals.padded_char_embeddings=utils.loadPickle('output/model/padded_char_embeddings_0_5000.pickle')
+    globals.model_labels=utils.loadPickle('output/model/chunked_labels_0_5000.pickle')
 
-    # Shape information based on the precomputed embeddings
-    num_sentences, max_sentence_length, word_embedding_dim = globals.word_embeddings_numpy.shape
-    max_word_length, char_embedding_dim = globals.char_embeddings_numpy.shape[2:4]
+    globals.word_embeddings_numpy = np.array(globals.padded_word_embeddings)
+    globals.char_embeddings_numpy = np.array(globals.padded_char_embeddings)
+    utils.SaveToPickle('output/model/word_embeddings_numpy_0_5000.pickle', globals.word_embeddings_numpy)
+    utils.SaveToPickle('output/model/char_embeddings_numpy_0_5000.pickle', globals.char_embeddings_numpy)
 
+
+def create_model():
+
+    max_sentence_length=400
+    word_embedding_dim=768
+    max_word_length=15
+    char_embedding_dim=37
     # LSTM units
     lstm_units = 64
-
-    
 
     # Word LSTM model with return_sequences=True
     word_input = Input(shape=(max_sentence_length,word_embedding_dim))
@@ -266,7 +283,7 @@ def create_model():
     # Concatenate the last_word_lstm_output with char_input_reshaped
     merged_input = concatenate([word_lstm_expanded, char_input], axis=2)
 
-   
+
     inferred_dimension = tf.reduce_prod(tf.shape(merged_input)[2:])  # Calculate the size of the third dimension
     reshaped_input = tf.reshape(merged_input, (tf.shape(merged_input)[0], max_sentence_length, inferred_dimension))
 
@@ -300,9 +317,9 @@ def training_model():
     # Define your padding vector
     label_padding = -1
 
+    max_sentence_length=400
 
-    num_sentences, max_sentence_length, word_embedding_dim = globals.word_embeddings_numpy.shape
-    max_word_length, char_embedding_dim = globals.char_embeddings_numpy.shape[2:4]
+    max_word_length=15
 
     padded_labels = []
     for sentence in globals.model_labels:
@@ -329,7 +346,7 @@ def training_model():
     
    # Define a callback to save the model weights after each epoch
     checkpoint_callback = ModelCheckpoint(
-        filepath='models/weights/folder0_2224/weights_epoch_{epoch:02d}.h5',  # Specify the filename format
+        filepath='models/weights/folder_0_5000/weights_epoch_{epoch:02d}.h5',  # Specify the filename format
         save_weights_only=True,  # Save only the weights, not the entire model
         verbose=1  # Display progress
     )
