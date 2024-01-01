@@ -59,16 +59,16 @@ def test_memory():
 
 def main():
 
-    extract()
-    models.prepare_data()
-    print("MAIN - finished preparing data")
+    # extract()
+    # models.prepare_data()
+    # print("MAIN - finished preparing data")
 
-    # models.load_saved_model('initial_model')
-    # print("finished loading model and weights")
+    models.load_saved_model('initial_model','weights_epoch_01.h5')
+    print("finished loading model and weights")
 
     # evaluate_model()
-    # # models.create_model()
-    # # print("MAIN - finished creating model")
+    # # # models.create_model()
+    # # # print("MAIN - finished creating model")
 
     
     train_model("initial_model")
