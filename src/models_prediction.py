@@ -2,6 +2,18 @@ import utils
 import numpy as np
 import globals
 
+def load_data_for_extraction():
+
+    globals.char_embeddings = utils.loadPickle('output/competition/char_embeddings_test.pickle')
+    print("finished loading char embeddings")
+    # globals.golden_outputs_list = utils.loadPickle('output/golden_outputs_val.pickle')
+    # print("finished loading golden outputs")
+    globals.tokenized_sentences = utils.loadPickle('output/competition/tokenized_sentences_test_withHamza.pickle')
+    print("finished loading tokenized sentences")
+
+
+
+
 def load_data_for_prediction():
 
     # Load char embeddings

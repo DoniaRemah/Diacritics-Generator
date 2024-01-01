@@ -6,7 +6,7 @@ import models_prediction as mp
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1' # Disable GPU
 
 def extract():
-    models.load_data_for_extraction()
+    mp.load_data_for_extraction()
     print("MAIN - finished loading data for extraction")
     mp.extract_chars()
 
