@@ -13,11 +13,11 @@ from keras import losses
 
 def load_data_for_extraction():
 
-    globals.char_embeddings = utils.loadPickle('output/char_embeddings_val.pickle')
+    globals.char_embeddings = utils.loadPickle('output/competition/char_embeddings_test.pickle')
     print("finished loading char embeddings")
-    globals.golden_outputs_list = utils.loadPickle('output/golden_outputs_val.pickle')
-    print("finished loading golden outputs")
-    globals.tokenized_sentences = utils.loadPickle('output/tokenized_sentences_val_withHamza.pickle')
+    # globals.golden_outputs_list = utils.loadPickle('output/golden_outputs_val.pickle')
+    # print("finished loading golden outputs")
+    globals.tokenized_sentences = utils.loadPickle('output/competition/tokenized_sentences_test_withHamza.pickle')
     print("finished loading tokenized sentences")
 
 
@@ -41,8 +41,8 @@ def load_data_for_training():
 def load_saved_model(model_name,weight_name=""):
     name = "models/"+model_name
     globals.our_model = load_model(name)
-    name = "models/weights/folder_15000_20000/"+weight_name
-    globals.our_model.load_weights(name)
+    # name = "models/weights/folder_20000_25000/"+weight_name
+    # globals.our_model.load_weights(name)
 
 def extract_char_embeddings_and_labels():
     for sentece_index, sentence in enumerate(globals.tokenized_sentences):
@@ -350,11 +350,12 @@ def training_model():
 
 
     # Mask the padded labels
-    labels_mask = (labels_numpy != label_padding)
+    # labels_mask = (labels_numpy != label_padding)
+    labels_mask = tf.math.not_equal(labels_numpy, -1)
 
-    # Apply the mask to the labels
-    labels_numpy = np.multiply(labels_numpy, labels_mask)
-    labels_numpy = tf.cast(labels_numpy, 'int64')
+    # # Apply the mask to the labels
+    # labels_numpy = np.multiply(labels_numpy, labels_mask)
+    # labels_numpy = tf.cast(labels_numpy, 'int64')
     
    # Define a callback to save the model weights after each epoch
     checkpoint_callback = ModelCheckpoint(
@@ -368,7 +369,7 @@ def training_model():
 
     for i in range(0, len(globals.word_embeddings_numpy), 2500):
         batch_end = min(i + 2500, len(globals.word_embeddings_numpy))
-        globals.our_model.fit([globals.word_embeddings_numpy[i:batch_end],globals.char_embeddings_numpy[i:batch_end] ], labels_numpy[i:batch_end], epochs=epochs, verbose=1,callbacks=[checkpoint_callback],batch_size=batch_size)
+        globals.our_model.fit([globals.word_embeddings_numpy[i:batch_end],globals.char_embeddings_numpy[i:batch_end] ], labels_numpy[i:batch_end], epochs=epochs, verbose=1,callbacks=[checkpoint_callback],batch_size=batch_size,sample_weight=labels_mask[i:batch_end])
         print("TRAINING - Finished batch number ", i)
     
 
@@ -406,11 +407,32 @@ def evaluating_model():
     labels_numpy = tf.cast(labels_numpy, 'int64')
 
    # Evaluate the model on the test data
-    evaluation_result =  globals.our_model.evaluate([globals.word_embeddings_numpy, globals.char_embeddings_numpy], labels_numpy)
+    # evaluation_result =  globals.our_model.evaluate([globals.word_embeddings_numpy, globals.char_embeddings_numpy], labels_numpy)
+    predictions = globals.our_model.predict([globals.word_embeddings_numpy,globals.char_embeddings_numpy])
+    for sentence in predictions:
+        predicted_labels_per_sentence = []
+        for word in sentence:
+            predicted_labels_per_word = []
+            for char in word:
+                # take softmax for char and get the index of the max value
+                softmax = np.exp(char) / np.sum(np.exp(char), axis=0)
+                predicted_label = np.argmax(softmax)
+                predicted_labels_per_word.append(predicted_label)
+            predicted_labels_per_sentence.append(predicted_labels_per_word)
+        globals.predicted_labels.append(predicted_labels_per_sentence)
 
-    # Display evaluation results
-    print("Loss:", evaluation_result[0])
-    print("Accuracy:", evaluation_result[1])
+    # Save the output in csv file
+    with open('output/predicted_labels_val.csv', 'w', encoding='utf-8') as f:
+        f.write('label\n')
+        for index1,sentence in enumerate(globals.predicted_labels):
+            for index2,word in enumerate(sentence):
+                for index3,char in enumerate(word):
+                    f.write(str(char) +'\n')
+
+
+    # # Display evaluation results
+    # print("Loss:", evaluation_result[0])
+    # print("Accuracy:", evaluation_result[1])
 
 
 

@@ -43,3 +43,7 @@ padded_char_embeddings = []
 chunked_word_embeddings = []
 chunked_char_embeddings=[]
 chunked_labels = []
+
+predicted_labels = []
+chunked_model_indices=[]
+padded_indices=[]
