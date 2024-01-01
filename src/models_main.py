@@ -27,10 +27,16 @@ def extract():
 #     models.create_model()
 #     print("MAIN - finished creating model")
 
+def evaluate_model():
+    models.load_padded_data()
+    
+    print("MAIN - finished loading padded data for training")
+    models.evaluating_model()
+
 def train_model(model_name,weights_name=""):
     # 0_2224/weights_epoch_09.h5 -> pass this
-    models.load_saved_model(model_name)
-    print("MAIN - finished loading model")
+    # models.load_saved_model(model_name)
+    # print("MAIN - finished loading model")
     models.load_padded_data()
     print("MAIN - finished loading padded data for training")
     models.training_model()
@@ -56,11 +62,16 @@ def main():
     # extract()
     # models.prepare_data()
     # print("MAIN - finished preparing data")
+
+    models.load_saved_model('initial_model','weights_epoch_01.h5')
+    print("finished loading model and weights")
+
+    evaluate_model()
     # models.create_model()
     # print("MAIN - finished creating model")
 
     
-    train_model("initial_model")
+    # train_model("initial_model")
     print("MAIN - OVERRRRRR")
 
 

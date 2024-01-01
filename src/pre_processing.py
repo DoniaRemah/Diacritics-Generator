@@ -10,7 +10,8 @@ tokenizer = AutoTokenizer.from_pretrained('asafaya/bert-base-arabic')
 model= AutoModel.from_pretrained('asafaya/bert-base-arabic')
 
 def clean_data():
-    text = globals.unclean_sentences
+    # text = globals.unclean_sentences
+    text = globals.test_sentences
     clean_sentences =[]
     for sentence in text:
         
@@ -28,7 +29,10 @@ def clean_data():
 
     ############################################ write the clean_sentences to file ############################################
 
-    with open('output/cleaned_train.txt', 'w',encoding='utf-8') as cleaned_train_file:
+    # with open('output/cleaned_train.txt', 'w',encoding='utf-8') as cleaned_train_file:
+    #     for sentence in globals.clean_sentences:
+    #         cleaned_train_file.write(sentence)
+    with open('output/cleaned_val.txt', 'w',encoding='utf-8') as cleaned_train_file:
         for sentence in globals.clean_sentences:
             cleaned_train_file.write(sentence)
 
@@ -46,7 +50,7 @@ def word_tokenize():
     count =0
     
     #loop over the cleaned sentences and tokenize them
-    for sentence in globals.clean_sentences[20000:25000]:
+    for sentence in globals.clean_sentences:
         sentence_word_embeddings=[]
         
         chunks =[]
@@ -85,10 +89,13 @@ def word_tokenize():
         count+=1
     
     #####################################Save outputs to file#################################################
-    utils.SaveToPickle('output/vocab_20000_25000.pickle', globals.word_vocabulary)
-    utils.SaveToPickle('output/tokenized_sentences_20000_25000_withoutHamza.pickle', globals.tokenized_sentences)
-    utils.SaveToPickle('output/word_embeddings_20000_25000.pickle', globals.word_embeddings)
-            
+    # utils.SaveToPickle('output/vocab_20000_25000.pickle', globals.word_vocabulary)
+    # utils.SaveToPickle('output/tokenized_sentences_20000_25000_withoutHamza.pickle', globals.tokenized_sentences)
+    # utils.SaveToPickle('output/word_embeddings_20000_25000.pickle', globals.word_embeddings)
+    utils.SaveToPickle('output/vocab_val.pickle', globals.word_vocabulary)
+    utils.SaveToPickle('output/tokenized_sentences_val_withoutHamza.pickle', globals.tokenized_sentences)
+    utils.SaveToPickle('output/word_embeddings_val.pickle', globals.word_embeddings)
+
 
 def extract_golden_output():
     char_counter = 0
@@ -116,7 +123,7 @@ def extract_golden_output():
             # list of Lists of chars with their corresponding diacritics
         globals.golden_outputs_list.append(word_tuples_list)
     
-    utils.SaveToPickle('output/golden_outputs.pickle', globals.golden_outputs_list)
+    utils.SaveToPickle('output/golden_outputs_val.pickle', globals.golden_outputs_list)
 
 def letter_to_vector():
     # Creating one-hot vector for each char
@@ -142,7 +149,7 @@ def get_words_without_diacritics(sentences):
 
 def sub_tokenized_letters():
 
-    words_without_diac = get_words_without_diacritics(globals.clean_sentences[20000:25000])
+    words_without_diac = get_words_without_diacritics(globals.clean_sentences)
 
     for sent_index,sentence in enumerate(words_without_diac):
         current_tokenized_word_index = 0
@@ -186,7 +193,7 @@ def sub_tokenized_letters():
                     processed_chars += 1
 
             current_tokenized_word_index += 1
-    utils.SaveToPickle('output/tokenized_sentences_20000_25000_withHamza.pickle',globals.tokenized_sentences)                
+    utils.SaveToPickle('output/tokenized_sentences_val_withHamza.pickle',globals.tokenized_sentences)                
 
 
 
@@ -213,7 +220,7 @@ def assign_vector_to_char():
             sentence_vector_char.append(word_tuple)
         globals.char_embeddings.append(sentence_vector_char)
     
-    utils.SaveToPickle('output/char_embeddings_20000_25000.pickle', globals.char_embeddings)
+    utils.SaveToPickle('output/char_embeddings_val.pickle', globals.char_embeddings)
 
 
 def get_char_embeddings():
@@ -229,19 +236,20 @@ def tokenize():
     # # ////////////////////////////////////// TOKENIZING WORDS, GENERATE WORD EMBEDDINGS AND UPDATING VOCABULARY //////////////////////////////////////////
     word_tokenize()
 
-    # print("finished tokenizing words")
+    print("finished tokenizing words")
 
 
     # # //////////////////////////////////////Extracting Golden Output //////////////////////////////////////////
-    # extract_golden_output()
+    # not in test
+    extract_golden_output() 
 
-    # print("finished extracting golden output")
+    print("finished extracting golden output")
 
     # # # //////////////////////////////////////One hot vector for every char in vocab //////////////////////////////////////////
     
     get_char_embeddings()
 
-    # print("finished tokenizing chars")
+    print("finished tokenizing chars")
 
     # # # //////////////////////////////////////Assigning Vector to every char in the corpus /////////////////////////////////////////
 

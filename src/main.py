@@ -10,7 +10,13 @@ def read_data():
 
     
     ################################################## Reading Cleaned Data ##################################################
-    with open('output/cleaned_train.txt', 'r',encoding='utf-8') as cleaned_train_file:
+    # with open('output/cleaned_train.txt', 'r',encoding='utf-8') as cleaned_train_file:
+    #     globals.clean_sentences = cleaned_train_file.readlines()
+
+    # globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
+
+
+    with open('output/cleaned_val.txt', 'r',encoding='utf-8') as cleaned_train_file:
         globals.clean_sentences = cleaned_train_file.readlines()
 
     globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
@@ -27,7 +33,7 @@ def read_data():
 
 def main():
     read_data()
-    # # pre.clean_data()
+    # pre.clean_data()
 
     # globals.tokenized_sentences = utils.loadPickle('output/tokenized_sentences_0_2224.pickle')
     # # utils.saveToTextFile('tokenized_sentences_0_2224.txt',globals.tokenized_sentences)
