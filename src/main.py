@@ -16,13 +16,19 @@ def read_data():
     # globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
 
 
-    with open('output/cleaned_val.txt', 'r',encoding='utf-8') as cleaned_train_file:
-        globals.clean_sentences = cleaned_train_file.readlines()
+    # with open('output/cleaned_val.txt', 'r',encoding='utf-8') as cleaned_train_file:
+    #     globals.clean_sentences = cleaned_train_file.readlines()
 
-    globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
+    # globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
     ################################################## Reading DEV DATA ##################################################
     # with open('dataset/val.txt', 'r',encoding='utf-8') as test_file:
     #     globals.test_sentences = test_file.readlines()
+
+    ################################################## Reading TEST DATA ##################################################
+    with open('output/competition/cleaned_test.txt', 'r',encoding='utf-8') as cleaned_test_file:
+        globals.clean_sentences = cleaned_test_file.readlines()
+
+    globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
 
 
     globals.letters={'#','س', 'ك', 'ن', 'ص', 'ة', 'ء', 'ؤ', 'ا', 'ع', 'ذ', 'ظ', 'ز', 'د', 'خ', 'ف', 'ش', 'ي', 'ض', 'ه', 'ر', 'ئ', 'إ', 'أ', 'غ', 'و', 'ب', 'ق', 'ى', 'ح', 'آ', 'ت', 'ج', 'م', 'ل', 'ط', 'ث'}
@@ -30,6 +36,12 @@ def read_data():
 
     # ################################### READING DIACRITIC IDS
     globals.diacritics_ids = utils.loadPickle('Letters and Diacritics/diacritic2id.pickle')
+
+
+
+    ################################################## Reading TEST DATA ##################################################
+    # with open('dataset/test_no_diacritics.txt', 'r',encoding='utf-8') as test_no_file:
+    #     globals.unclean_sentences = test_no_file.readlines()
 
 def main():
     read_data()
