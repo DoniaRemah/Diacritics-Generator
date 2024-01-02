@@ -3,10 +3,15 @@ import pre_processing as pre
 import utils
 
 def read_data():
+
+    # # read a sentence from the command line utf-8 encoded
+    # sentence = input("Enter a sentence: ")
+    # print(sentence)
+
     ##################################################TRAINING DATA###########################################################
     ################################################## Reading Unclean Data ##################################################
-    # with open('dataset/train.txt', 'r',encoding='utf-8') as train_file:
-    #     globals.unclean_sentences = train_file.readlines()
+    with open('dataset/train.txt', 'r',encoding='utf-8') as train_file:
+        globals.unclean_sentences = train_file.readlines()
 
     
     ################################################## Reading Cleaned Data ##################################################
@@ -25,10 +30,10 @@ def read_data():
     #     globals.test_sentences = test_file.readlines()
 
     ################################################## Reading TEST DATA ##################################################
-    with open('output/competition/cleaned_test.txt', 'r',encoding='utf-8') as cleaned_test_file:
-        globals.clean_sentences = cleaned_test_file.readlines()
+    # with open('output/competition/cleaned_test.txt', 'r',encoding='utf-8') as cleaned_test_file:
+    #     globals.clean_sentences = cleaned_test_file.readlines()
 
-    globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
+    # globals.clean_sentences = [sentence.strip("\n") for sentence in globals.clean_sentences]
 
 
     globals.letters={'#','س', 'ك', 'ن', 'ص', 'ة', 'ء', 'ؤ', 'ا', 'ع', 'ذ', 'ظ', 'ز', 'د', 'خ', 'ف', 'ش', 'ي', 'ض', 'ه', 'ر', 'ئ', 'إ', 'أ', 'غ', 'و', 'ب', 'ق', 'ى', 'ح', 'آ', 'ت', 'ج', 'م', 'ل', 'ط', 'ث'}
@@ -50,7 +55,7 @@ def main():
     # globals.tokenized_sentences = utils.loadPickle('output/tokenized_sentences_0_2224.pickle')
     # # utils.saveToTextFile('tokenized_sentences_0_2224.txt',globals.tokenized_sentences)
 
-    pre.pre_processing()
+    # pre.pre_processing()
 
 
     print("finished preprocessing")

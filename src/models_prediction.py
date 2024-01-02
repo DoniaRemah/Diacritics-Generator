@@ -4,11 +4,11 @@ import globals
 
 def load_data_for_extraction():
 
-    globals.char_embeddings = utils.loadPickle('output/competition/char_embeddings_test.pickle')
+    globals.char_embeddings = utils.loadPickle('output/char_embeddings_sentence.pickle')
     print("finished loading char embeddings")
     # globals.golden_outputs_list = utils.loadPickle('output/golden_outputs_val.pickle')
     # print("finished loading golden outputs")
-    globals.tokenized_sentences = utils.loadPickle('output/competition/tokenized_sentences_test_withHamza.pickle')
+    globals.tokenized_sentences = utils.loadPickle('output/tokenized_sentences_sentence_withHamza.pickle')
     print("finished loading tokenized sentences")
 
 
@@ -44,8 +44,8 @@ def extract_chars():
 
         globals.model_chars_index_per_corpus.append(chars_index_per_sentence)
         globals.model_char_embeddings.append(words_per_sentence)
-    utils.SaveToPickle('output/competition/model/model_char_embeddings_test.pickle', globals.model_char_embeddings)
-    utils.SaveToPickle('output/competition/model/model_chars_index_per_corpus_test.pickle', globals.model_chars_index_per_corpus)
+    utils.SaveToPickle('output/model/model_char_embeddings_sentence.pickle', globals.model_char_embeddings)
+    utils.SaveToPickle('output/model/model_chars_index_per_corpus_sentence.pickle', globals.model_chars_index_per_corpus)
 
 def chunk_data():
     # Chunk word_embeddings and model_char_embeddings, where each chunk has max size 400
@@ -94,7 +94,7 @@ def chunk_data():
     globals.chunked_word_embeddings = chunked_word_embeddings
     globals.chunked_char_embeddings = chunked_model_char_embeddings
     globals.chunked_model_indices = chunked_model_indices
-    utils.SaveToPickle('output/competition/model/chunked_model_indices_test.pickle',globals.chunked_model_indices)
+    utils.SaveToPickle('output/model/chunked_model_indices_sentence.pickle',globals.chunked_model_indices)
 
 
 
@@ -108,7 +108,7 @@ def pad_word_embeddings():
         padded_word_embeddings.append(padded_sentence)
 
     globals.padded_word_embeddings = padded_word_embeddings
-    utils.SaveToPickle('output/competition/model/padded_word_embeddings_test.pickle', globals.padded_word_embeddings)
+    utils.SaveToPickle('output/model/padded_word_embeddings_sentence.pickle', globals.padded_word_embeddings)
 
 
 def pad_char_embeddings():
@@ -136,7 +136,7 @@ def pad_char_embeddings():
         padded_char_embeddings.append(new_sentence)
 
     globals.padded_char_embeddings = padded_char_embeddings
-    utils.SaveToPickle('output/competition/model/padded_char_embeddings_test.pickle', globals.padded_char_embeddings)
+    utils.SaveToPickle('output/model/padded_char_embeddings_sentence.pickle', globals.padded_char_embeddings)
 
 def pad_indices():
     index_padding = -1
@@ -158,14 +158,14 @@ def pad_indices():
         padded_indices.append(new_sentence)
 
     globals.padded_indices = padded_indices
-    utils.SaveToPickle('output/competition/model/padded_indices_test.pickle', globals.padded_indices)
+    utils.SaveToPickle('output/model/padded_indices_sentence.pickle', globals.padded_indices)
 
 
 def prepare_data():
-    globals.word_embeddings = utils.loadPickle('output/competition/word_embeddings_test.pickle')
+    globals.word_embeddings = utils.loadPickle('output/word_embeddings_sentence.pickle')
     print("finished loading word embeddings")
-    globals.model_char_embeddings = utils.loadPickle('output/competition/model/model_char_embeddings_test.pickle')
-    globals.model_chars_index_per_corpus = utils.loadPickle('output/competition/model/model_chars_index_per_corpus_test.pickle')
+    globals.model_char_embeddings = utils.loadPickle('output/model/model_char_embeddings_sentence.pickle')
+    globals.model_chars_index_per_corpus = utils.loadPickle('output/model/model_chars_index_per_corpus_sentence.pickle')
     chunk_data()
     print("finished chunking data")
     pad_word_embeddings()
@@ -176,9 +176,9 @@ def prepare_data():
     print("finished padding indices")
 
 def load_padded_data():
-    globals.padded_word_embeddings=utils.loadPickle('output/competition/model/padded_word_embeddings_test.pickle')
-    globals.padded_char_embeddings=utils.loadPickle('output/competition/model/padded_char_embeddings_test.pickle')
-    globals.padded_indices=utils.loadPickle('output/competition/model/padded_indices_test.pickle')
+    globals.padded_word_embeddings=utils.loadPickle('output/model/padded_word_embeddings_sentence.pickle')
+    globals.padded_char_embeddings=utils.loadPickle('output/model/padded_char_embeddings_sentence.pickle')
+    globals.padded_indices=utils.loadPickle('output/model/padded_indices_sentence.pickle')
 
     globals.word_embeddings_numpy = np.array(globals.padded_word_embeddings)
     globals.char_embeddings_numpy = np.array(globals.padded_char_embeddings)
@@ -213,3 +213,15 @@ def save_output():
                         f.write(str(char) + ',' + str(globals.predicted_labels[index1][index2][index3]) + '\n')
                     else:
                         continue
+
+def get_output():
+        
+    list_of_diacritics=[]
+    for index1,sentence in enumerate(globals.padded_indices):
+        for index2,word in enumerate(sentence):
+            for index3,char in enumerate(word):
+                if char != -1:
+                    list_of_diacritics.append(globals.predicted_labels[index1][index2][index3])
+                else:
+                    continue
+    return list_of_diacritics
