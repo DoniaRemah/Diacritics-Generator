@@ -64,7 +64,7 @@ def main():
     # print("MAIN - finished preparing data")
 
     models.load_saved_model('initial_model','weights_epoch_01.h5')
-    # print("finished loading model and weights")
+    print("finished loading model and weights")
 
     # evaluate_model()
     # # # models.create_model()
